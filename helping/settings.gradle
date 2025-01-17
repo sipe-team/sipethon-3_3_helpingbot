@@ -1,0 +1,14 @@
+
+/**
+ * 역할: 프로젝트 설정과 멀티프로젝트 구성 관리
+ * 프로젝트의 루트 디렉토리와 서브프로젝트를 정의.
+ * Gradle 플러그인의 초기화 설정을 다룸.
+ */
+pluginManagement {
+    plugins {
+        id 'org.springframework.boot' version "${springBootVersion}"
+        id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
+    }
+}
+
+rootProject.name = 'helping'
