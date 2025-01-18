@@ -23,6 +23,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -40,6 +41,7 @@ public class SheetsService {
 
   private Sheets sheets;
 
+  @Async
   public void attendance(List<String> members, int week) {
     try {
       Sheets sheets = getSheets();
