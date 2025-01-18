@@ -133,12 +133,7 @@ public class SheetsService {
       List<String> values = response.getValues().getFirst().stream()
           .map(Object::toString)
           .toList();
-      // find CrewMember by member
-      // List<CrewMember> crewMembers = getCrewMembers(response);
-      // CrewMember me = crewMembers.stream()
-      //     .filter(crewMember -> crewMember.name().equals(member))
-      //     .findFirst()
-      //     .orElseThrow(() -> new RuntimeException("Failed to find me from the spreadsheet"));
+
       return new FindMeSheetDto(FindMeCrewMember.of(row, member, values));
     } catch (Exception e) {
       log.error("Failed to find data from the spreadsheet", e);
