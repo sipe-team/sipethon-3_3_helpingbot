@@ -82,14 +82,23 @@ export const handleSubmitMissionModal = async ({ ack, body, view, client }) => {
       fs.mkdirSync('data');
     }
 
+    // CSV 파일 처리
+    let content = '';
     if (!fs.existsSync('data/missions.csv')) {
-      fs.writeFileSync(
-        'data/missions.csv',
-        '날짜,이름,주제,목표,1순위,2순위,3순위,최종\n'
-      );
+      // 새 파일 생성
+      content = '날짜,이름,주제,목표,1순위,2순위,3순위,최종\n';
+      fs.writeFileSync('data/missions.csv', content);
+    } else {
+      // 기존 파일 읽기
+      content = fs.readFileSync('data/missions.csv', 'utf-8');
+      // 파일이 줄바꿈으로 끝나지 않으면 추가
+      if (!content.endsWith('\n')) {
+        content = content + '\n';
+        fs.writeFileSync('data/missions.csv', content);
+      }
     }
 
-    const newRow = `${new Date().toISOString()},${name},${subject},${goal}\n`;
+    const newRow = `${new Date().toISOString()},${name},${subject},${goal},,,,\n`;
     fs.appendFileSync('data/missions.csv', newRow);
 
     await client.chat.postMessage({

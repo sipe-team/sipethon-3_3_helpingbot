@@ -17,6 +17,8 @@ import { MISSION_SUBMIT_MODAL, MISSION_APPLY_MODAL } from './const.js';
 
 import { handleMissionList, handleViewMissionDetail } from './mission-list.js';
 
+import * as missionFinalApi from './mission-final.js';
+
 dotenv.config();
 
 const app = new App({
@@ -41,6 +43,11 @@ app.view(MISSION_APPLY_MODAL, handleApplyMissionModal);
 
 app.command('/미션목록', handleMissionList);
 app.action(/view_mission_\d+/, handleViewMissionDetail);
+
+app.command('/미션선발', missionFinalApi.handleMissionFinalSelect);
+app.action('export_csv', missionFinalApi.handleExportCSV);
+app.action('import_csv', missionFinalApi.handleImportCSV);
+app.view('import_csv_modal', missionFinalApi.handleImportCSVModal);
 
 (async () => {
   // Start your app
