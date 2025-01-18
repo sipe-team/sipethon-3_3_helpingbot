@@ -1,5 +1,6 @@
 package com.sipe.slack.helping.config;
 
+import com.sipe.slack.helping.HangOut;
 import com.sipe.slack.helping.MissionSubmit;
 import com.sipe.slack.helping.sheets.AttendanceHandler;
 import com.slack.api.bolt.App;
@@ -20,6 +21,7 @@ public class SlackBoltServerConfig {
 
 	private final MissionSubmit missionSubmit;
 	private final AttendanceHandler attendanceHandler;
+	private final HangOut hangOut;
 
 	@Bean
 	@EventListener(ContextStartedEvent.class)
@@ -42,8 +44,8 @@ public class SlackBoltServerConfig {
 		app.blockAction("fetch_all_submissions", missionSubmit.handleFetchAllSubmissions());
 		app.command("/출석", attendanceHandler.attendance());
 		app.viewSubmission("attendance", attendanceHandler.handleSubmission());
-		app.command("/뒷풀이", missionSubmit.HangoutHandler());
-		app.viewSubmission("hangout_view", missionSubmit.handleHangoutSubmission());
+		app.command("/뒷풀이", hangOut.HangoutHandler());
+		app.viewSubmission("hangout_view", hangOut.handleHangoutSubmission());
 		SocketModeApp socketModeApp = new SocketModeApp(appToken, SocketModeClient.Backend.JavaWebSocket, app);
 		socketModeApp.startAsync();
 		return socketModeApp;
