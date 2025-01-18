@@ -5,13 +5,24 @@ import fs from 'fs';
 
 import dotenv from 'dotenv';
 
-import { handleSubmitMission, handleSubmitMissionModal } from './mission-submit.js';
-import { handleApplyMission, handleApplyMissionModal } from './mission-apply.js';
-import { MISSION_SUBMIT_MODAL, MISSION_APPLY_MODAL } from './const.js';
+import {
+  handleSubmitMission,
+  handleSubmitMissionModal,
+} from './mission-submit.js';
+import {
+  handleApplyMission,
+  handleApplyMissionModal,
+} from './mission-apply.js';
+import {
+  MISSION_SUBMIT_MODAL,
+  MISSION_APPLY_MODAL,
+  MISSION_SUBMIT_ACTION,
+} from './const.js';
 
 import { handleMissionList, handleViewMissionDetail } from './mission-list.js';
 
 import * as missionFinalApi from './mission-final.js';
+import { handleMission } from './mission.js';
 
 import { GoogleSheet } from './googlesheet.js';
 
@@ -24,14 +35,9 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN,
 });
 
-app.message('ㅎㅇ', async ({ message, say }) => {
-  // say() sends a message to the channel where the event was triggered
-  console.log(message.user);
+app.command('/미션', handleMission);
 
-  await say(`Hey there <@${message.user}>!`);
-});
-
-app.command('/딱풀아', handleSubmitMission);
+app.action(MISSION_SUBMIT_ACTION, handleSubmitMission);
 app.view(MISSION_SUBMIT_MODAL, handleSubmitMissionModal);
 
 app.command('/미션신청', handleApplyMission);

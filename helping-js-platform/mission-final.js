@@ -1,4 +1,7 @@
 import fs from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const handleMissionFinalSelect = async ({ command, ack, client }) => {
   await ack();
@@ -92,7 +95,7 @@ export const handleExportCSV = async ({ ack, body, client }) => {
 
     // V2 API를 사용하여 파일 업로드
     const result = await client.files.uploadV2({
-      channel_id: 'C0893D5CG6N',
+      channel_id: process.env.MISSION_CHANNER_ID,
       filename: 'missions.csv',
       content: fileContent,
       initial_comment: '현재 미션 데이터입니다. 📊',
@@ -104,7 +107,7 @@ export const handleExportCSV = async ({ ack, body, client }) => {
 
     // 에러 발생 시 사용자에게 알림
     await client.chat.postMessage({
-      channel: 'C0893D5CG6N',
+      channel: process.env.MISSION_CHANNER_ID,
       text: 'CSV 파일 내보내기 중 문제가 발생했습니다. 😢',
     });
   }
@@ -202,7 +205,7 @@ export const handleImportCSVModal = async ({ ack, body, view, client }) => {
     ];
 
     await client.chat.postMessage({
-      channel: 'C0893D5CG6N',
+      channel: process.env.MISSION_CHANNER_ID,
       blocks: messageBlocks,
     });
 
