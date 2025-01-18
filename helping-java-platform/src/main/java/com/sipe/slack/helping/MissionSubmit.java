@@ -10,10 +10,13 @@ import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.model.view.View;
+import com.slack.api.model.view.ViewClose;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.model.block.Blocks;
 import com.slack.api.model.block.composition.BlockCompositions;
 import com.slack.api.model.block.element.BlockElements;
+import com.slack.api.model.view.ViewSubmit;
+import com.slack.api.model.view.ViewTitle;
 import com.slack.api.model.view.Views;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -242,9 +245,23 @@ public class MissionSubmit {
 			.callbackId(SUBMIT_VIEW)
 			.type("modal")
 			.privateMetadata(channelId)
-			// .title(viewTitle -> viewTitle.type("plain_text").text("제출하기"))
-			// .submit(viewSubmit -> viewSubmit.type("plain_text").text("제출"))
-			// .close(viewClose -> viewClose.type("plain_text").text("취소"))
+			.title(ViewTitle.builder()
+				.type("plain_text")
+				.text("제목")
+				.emoji(true)
+				.build())
+			.submit(ViewSubmit.builder()
+				.type("plain_text")
+				.text("제출")
+				.emoji(true)
+				.build()
+			)
+			.close(ViewClose.builder()
+				.type("plain_text")
+				.text("취소")
+				.emoji(true)
+				.build()
+			)
 			.blocks(asBlocks(
 				Blocks.input(input -> input
 					.blockId("title_block_id")
