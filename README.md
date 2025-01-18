@@ -64,7 +64,7 @@
 ```
 /미션
 ```
-![미션](https://github.com/user-attachments/assets/f388ab7c-5792-42ef-9375-387d9f3f8c7b)
+![미션](https://github.com/user-attachments/assets/5800a2d8-4419-4cc0-984c-04d0a1597b27)
 
 <br>
 
@@ -73,7 +73,7 @@
 ```
 /미션관리
 ```
-![미션 관리](https://github.com/user-attachments/assets/f53ea7f6-6684-4f42-8161-e35ffd3249e4)
+![미션 관리](https://github.com/user-attachments/assets/d8cdebda-d9b0-489d-a378-1edb42e8960e)
 
 <br>
 
@@ -87,8 +87,7 @@
 /출석여부
 ```
 
-![출석](https://github-production-user-asset-6210df.s3.amazonaws.com/83820185/404531880-dd57e2bd-8cc7-4531-877a-db9db2d29100.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250118%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250118T115633Z&X-Amz-Expires=300&X-Amz-Signature=46e07ed3f79b8ad282a99b4ad5f58ea6b9f41fc70c0a85a9313adb0917cd1157&X-Amz-SignedHeaders=host)
-
+![출석](https://github.com/user-attachments/assets/45c26a86-4d4c-4f89-a40f-b77b1f20498e)
 
 <br>
 
@@ -97,6 +96,6 @@
 ```
 /뒷풀이
 ```
-![뒷풀이](https://github.com/user-attachments/assets/7ca6704a-8a17-4b2e-a5f2-4c83cec39762)
+![뒷풀이](https://github.com/user-attachments/assets/5de6bd62-9dd2-4826-afdf-6246e36a9aeb)
 
 <br>
