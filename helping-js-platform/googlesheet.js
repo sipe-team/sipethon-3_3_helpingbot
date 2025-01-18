@@ -32,4 +32,19 @@ export class GoogleSheet {
       console.error(err);
     }
   }
+  async addMemberToMission(missionId, member, rank) {
+    try {
+      const sheet = this.doc.sheetsByIndex[1];
+      const rows = await sheet.getRows({ offset: 1 });
+      const targetMission = rows[missionId];
+      const rankUsers = targetMission._rawData[rank + 5];
+      if (!targetMission) {
+        throw new Error('미션을 찾을 수 없습니다.');
+      }
+      targetMission._rawData[rank + 5] = `${rankUsers}${rankUsers ? ',' : ''} ${member}`;
+      await targetMission.save();
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }

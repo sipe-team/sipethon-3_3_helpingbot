@@ -3,14 +3,8 @@ const { App } = pkg;
 
 import dotenv from 'dotenv';
 
-import {
-  handleSubmitMission,
-  handleSubmitMissionModal,
-} from './mission-submit.js';
-import {
-  handleApplyMission,
-  handleApplyMissionModal,
-} from './mission-apply.js';
+import { handleSubmitMission, handleSubmitMissionModal } from './mission-submit.js';
+import { handleApplyMission, handleApplyMissionModal } from './mission-apply.js';
 import {
   MISSION_SUBMIT_MODAL,
   MISSION_APPLY_MODAL,
@@ -60,3 +54,5 @@ app.view('import_csv_modal', missionFinalApi.handleImportCSVModal);
 
 const googleSheet = new GoogleSheet();
 await googleSheet.init();
+await googleSheet.readMission();
+// await googleSheet.addMemberToMission(1, 'baebae', 1);
