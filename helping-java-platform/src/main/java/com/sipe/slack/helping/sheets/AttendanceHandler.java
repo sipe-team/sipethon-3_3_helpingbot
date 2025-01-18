@@ -4,6 +4,7 @@ import static com.slack.api.model.block.Blocks.asBlocks;
 import static com.slack.api.model.block.Blocks.input;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.multiUsersSelect;
+import static com.slack.api.model.block.element.BlockElements.plainTextInput;
 import static com.slack.api.model.view.Views.view;
 import static com.slack.api.model.view.Views.viewClose;
 import static com.slack.api.model.view.Views.viewSubmit;
@@ -12,9 +13,9 @@ import static com.slack.api.model.view.Views.viewTitle;
 import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.bolt.response.Response;
-import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.model.view.View;
+import com.slack.api.model.view.ViewState.Value;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,19 +26,14 @@ public class AttendanceHandler {
 
   public SlashCommandHandler attendance() {
     return (req, ctx) -> {
-      try {
-        ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
-            .triggerId(ctx.getTriggerId())
-            .view(buildView()));
-        if (viewsOpenRes.isOk()) {
-          return ctx.ack();
-        } else {
-          return Response.builder().statusCode(500).body(viewsOpenRes.getError()).build();
-        }
-      } catch (SlackApiException e) {
-        log.error("Error handling test command", e);
+      ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
+          .triggerId(ctx.getTriggerId())
+          .view(buildView()));
+      if (viewsOpenRes.isOk()) {
+        return ctx.ack();
+      } else {
+        return Response.builder().statusCode(500).body(viewsOpenRes.getError()).build();
       }
-      return ctx.ack();
     };
   }
 
@@ -62,6 +58,19 @@ public class AttendanceHandler {
             .emoji(true)
         ))
         .blocks(asBlocks(
+            // 주차 입력 블록
+            input(input -> input
+                .blockId("week-block")
+                .element(plainTextInput(pti -> pti
+                    .actionId("week-input-action")
+                    .placeholder(plainText("주차를 입력하세요 (숫자)"))
+                ))
+                .label(plainText(pt -> pt
+                    .text("주차 입력")
+                    .emoji(true)
+                ))
+            ),
+            // 멤버 선택 블록
             input(input -> input
                 .blockId("attendance-block")
                 .element(multiUsersSelect(usersSelect -> usersSelect
@@ -81,16 +90,26 @@ public class AttendanceHandler {
     return (req, ctx) -> {
       try {
         // View Submission Payload에서 입력값 추출
-        String blockId = "attendance-block";
-        String actionId = "attendance-select-action";
+        String memberBlockId = "attendance-block";
+        String memberActionId = "attendance-select-action";
 
         // 선택된 유저 ID 목록 추출
         List<String> selectedUserIds = req.getPayload().getView().getState().getValues()
-            .get(blockId)
-            .get(actionId)
+            .get(memberBlockId)
+            .get(memberActionId)
             .getSelectedUsers();
-
         log.info("Selected Users: {}", selectedUserIds);
+
+        // View Submission Payload에서 입력값 추출
+        String weekBlockId = "week-block";
+        String weekActionId = "week-input-action";
+
+        String weekInput = req.getPayload().getView().getState().getValues()
+            .get(weekBlockId)
+            .get(weekActionId)
+            .getValue();
+
+        log.info("Input Week: {}", weekInput);
 
         // 추가 로직 (데이터 저장, 처리 등)
         // 예: DB 저장, 메시지 전송 등
