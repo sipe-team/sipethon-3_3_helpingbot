@@ -8,7 +8,7 @@ import org.springframework.context.event.EventListener;
 import com.sipe.slack.helping.HangOut;
 import com.sipe.slack.helping.MissionSubmit;
 import com.sipe.slack.helping.attendance.FindMeAttendanceCommand;
-import com.sipe.slack.helping.sheets.AttendanceHandler;
+import com.sipe.slack.helping.Attendance;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.AppConfig;
 import com.slack.api.bolt.socket_mode.SocketModeApp;
@@ -24,7 +24,7 @@ public class SlackBoltServerConfig {
 
 	private final MissionSubmit missionSubmit;
 	private final FindMeAttendanceCommand findAttendanceCommand;
-	private final AttendanceHandler attendanceHandler;
+	private final Attendance attendance;
 	private final HangOut hangOut;
 
 	@Bean
@@ -50,8 +50,8 @@ public class SlackBoltServerConfig {
 		// 본인 출석여부 확인 커맨드
 		app.command("/출석여부", findAttendanceCommand.findMeAttendanceCommand(botToken));
 
-		app.command("/출석", attendanceHandler.attendance());
-		app.viewSubmission("attendance", attendanceHandler.handleSubmission());
+		app.command("/출석", attendance.attendance());
+		app.viewSubmission("attendance", attendance.handleSubmission());
 		app.command("/뒷풀이", hangOut.HangoutHandler());
 		app.viewSubmission("hangout_view", hangOut.handleHangoutSubmission());
 		SocketModeApp socketModeApp = new SocketModeApp(appToken, SocketModeClient.Backend.JavaWebSocket, app);

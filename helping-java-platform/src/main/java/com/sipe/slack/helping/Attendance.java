@@ -1,15 +1,19 @@
-package com.sipe.slack.helping.sheets;
+package com.sipe.slack.helping;
 
 import static com.slack.api.model.block.Blocks.asBlocks;
 import static com.slack.api.model.block.Blocks.input;
+import static com.slack.api.model.block.composition.BlockCompositions.asOptions;
+import static com.slack.api.model.block.composition.BlockCompositions.option;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.multiUsersSelect;
 import static com.slack.api.model.block.element.BlockElements.plainTextInput;
+import static com.slack.api.model.block.element.BlockElements.staticSelect;
 import static com.slack.api.model.view.Views.view;
 import static com.slack.api.model.view.Views.viewClose;
 import static com.slack.api.model.view.Views.viewSubmit;
 import static com.slack.api.model.view.Views.viewTitle;
 
+import com.sipe.slack.helping.sheets.SheetsService;
 import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.bolt.response.Response;
@@ -25,7 +29,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AttendanceHandler {
+public class Attendance {
 
   private final SheetsService sheetsService;
 
@@ -86,6 +90,23 @@ public class AttendanceHandler {
                     .text("출석한 멤버를 선택해주세요")
                     .emoji(true)
                 ))
+            ),
+            // 출석 상태 선택 블록
+            input(input -> input
+                .blockId("status-block")
+                .element(staticSelect(select -> select
+                    .actionId("status-select-action")
+                    .placeholder(plainText("출석 상태를 선택해주세요"))
+                    .options(asOptions(
+                        option(plainText("출석"), "10"),
+                        option(plainText("지각"), "5"),
+                        option(plainText("결석"), "0")
+                    ))
+                ))
+                .label(plainText(pt -> pt
+                    .text("출석 상태 선택")
+                    .emoji(true)
+                ))
             )
         ))
     );
@@ -108,10 +129,9 @@ public class AttendanceHandler {
         for (String selectedUserId : selectedUserIds) {
           UsersInfoResponse response = ctx.client().usersInfo(r -> r.user(selectedUserId));
           String realName = response.getUser().getRealName();
-          if(realName.contains("3기")){
+          if (realName.contains("3기")) {
             userNames.add(realName.substring(3));
-          }
-          else{
+          } else {
             userNames.add(realName);
           }
         }
@@ -127,7 +147,18 @@ public class AttendanceHandler {
             .getValue();
         log.info("Input Week: {}", weekInput);
 
-        sheetsService.attendance(userNames, Integer.valueOf(weekInput));
+        // View Submission Payload에서 입력값 추출
+        String statusBlockId = "status-block";
+        String statusActionId = "status-select-action";
+
+        String status = req.getPayload().getView().getState().getValues()
+            .get(statusBlockId)
+            .get(statusActionId)
+            .getSelectedOption()
+            .getValue();
+        log.info("Input Status: {}", status);
+
+        sheetsService.attendance(userNames, Integer.valueOf(weekInput), status);
 
         log.info("Update Success");
         // 사용자에게 성공 메시지 반환
