@@ -1,10 +1,11 @@
 import fs from 'fs';
+import { GoogleSheet } from './googlesheet.js';
 
 export const handleMissionList = async ({ body, client }) => {
   try {
-    const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
-    const lines = fileContent.split('\n').filter((line) => line.trim());
-    const records = lines.slice(1);
+    const googleSheet = new GoogleSheet();
+    await googleSheet.init();
+    const records = await googleSheet.readMission();
 
     await client.views.open({
       trigger_id: body.trigger_id,
@@ -25,7 +26,8 @@ export const handleMissionList = async ({ body, client }) => {
             },
           },
           ...records.map((record, index) => {
-            const [date, name, subject, goal] = record.split(',');
+            const [date, teamName, subject, goal, rule, plan] = record;
+
             return {
               type: 'section',
               text: {
@@ -49,22 +51,17 @@ export const handleMissionList = async ({ body, client }) => {
     });
   } catch (error) {
     console.error('미션 목록 조회 중 에러:', error);
-    await client.chat.postMessage({
-      channel: command.channel_id,
-      text: '미션 목록을 불러오는 중 문제가 발생했습니다. 😢',
-    });
   }
 };
 
 export const handleViewMissionDetail = async ({ body, ack, client }) => {
   try {
-    const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
-    const lines = fileContent.split('\n').filter((line) => line.trim());
-    const records = lines.slice(1);
+    const googleSheet = new GoogleSheet();
+    await googleSheet.init();
+    const records = await googleSheet.readMission();
 
     const missionIndex = parseInt(body.actions[0].value.split('_')[1]);
-    const [_, teamName, subject, goal, rule, plan] =
-      records[missionIndex].split(',');
+    const [_, teamName, subject, goal, rule, plan] = records[missionIndex];
 
     // 상세 정보를 모달로 표시
     await client.views.push({
