@@ -39,7 +39,7 @@ export const handleMissionFinalSelect = async ({ command, ack, client }) => {
       },
     });
   } catch (error) {
-    console.error('미션 신청 모달 열기 중 에러:', error);
+    console.error('미션 신청 모달 열기 중 에러~:', error);
   }
 };
 
@@ -66,8 +66,9 @@ export const handleSendResult = async ({ body, ack, client }) => {
     ];
 
     // 각 미션 데이터를 섹션 블록으로 변환
-    records.forEach(row => {
-      const [_, teamName, subject, goal, rule, plan, __, ___, ____, final] = row;
+    records.forEach((row) => {
+      const [_, teamName, subject, goal, rule, plan, __, ___, ____, final] =
+        row;
 
       // 빈 데이터는 건너뛰기
       if (!teamName && !subject && !final) return;
@@ -92,7 +93,7 @@ export const handleSendResult = async ({ body, ack, client }) => {
         },
         {
           type: 'divider',
-        },
+        }
       );
     });
 
