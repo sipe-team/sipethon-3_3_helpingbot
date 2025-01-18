@@ -31,6 +31,7 @@ public class SheetsService {
   private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
   public static final int START_CREW_MEMBER_ROW = 2;
   public static final char START_WEEK_COLUMN = 'D';
+  private static final String HANGOUT_SHEET_NAME = "Hangout";
 
   private final String GOOGLE_SHEET_ID = System.getenv("GOOGLE_SHEET_ID");
 
@@ -95,6 +96,11 @@ public class SheetsService {
   }
 
   private Sheets getSheets() throws IOException, GeneralSecurityException {
+    if (GOOGLE_SHEET_ID == null || GOOGLE_SHEET_ID.isBlank()) {
+      log.error("GOOGLE_SHEET_ID 환경 변수가 설정되지 않았습니다.");
+      throw new IllegalStateException("GOOGLE_SHEET_ID 환경 변수가 설정되지 않았습니다.");
+    }
+
     if (sheets == null) {
       GoogleCredentials credentials = GoogleCredentials.fromStream(new ClassPathResource(CREDENTIALS_FILE_PATH).getInputStream())
           // Google API를 호출할 떄 필요한 권한을 지정하는 부분 , 읽기/쓰기 권한을 나타냄
@@ -130,5 +136,58 @@ public class SheetsService {
       log.error("Failed to find data from the spreadsheet", e);
       throw new RuntimeException("Failed to find data from the spreadsheet: " + e.getMessage(), e);
     }
+  }
+
+  public void saveHangoutAttendance(final String activity, final String name, final String attendance) {
+    if (GOOGLE_SHEET_ID == null || GOOGLE_SHEET_ID.isBlank()) {
+      log.error("GOOGLE_SHEET_ID 값이 null 또는 비어 있습니다.");
+      return;
+    }
+
+    if (name == null || name.isEmpty()) {
+      log.warn("이름이 입력되지 않았습니다. 활동={}, 참석여부={}", activity, attendance);
+      return;
+    }
+    try {
+      Sheets sheets = getSheets();
+
+      // 시트 존재 여부 확인
+      ensureSheetExists(sheets, GOOGLE_SHEET_ID, HANGOUT_SHEET_NAME);
+
+      Map<String, Integer> allCrewMember = findAllCrewMember(sheets, GOOGLE_SHEET_ID);
+
+      Integer row = allCrewMember.get(name);
+      if (row == null) {
+        log.warn("해당 이름을 찾을 수 없습니다: {}", name);
+        return;
+      }
+
+      // "Hangout" 시트의 위치 설정
+      String range = String.format("%s!C%d:E%d", HANGOUT_SHEET_NAME, row, row);
+
+      // 기록할 데이터 준비
+      List<List<Object>> values = List.of(List.of(activity, name, attendance));
+
+      ValueRange body = new ValueRange().setValues(values);
+      UpdateValuesResponse result = sheets.spreadsheets().values().update(GOOGLE_SHEET_ID, range, body).setValueInputOption("USER_ENTERED").execute();
+
+      log.info("뒷풀이 참석 정보가 기록되었습니다. Updated rows: {}", result.getUpdatedRows());
+    } catch (Exception e) {
+      log.error("Failed to save hangout attendance", e);
+      throw new RuntimeException("Failed to save hangout attendance: " + e.getMessage(), e);
+    }
+  }
+
+  private void ensureSheetExists(final Sheets sheets, final String spreadsheetId, final String sheetName) throws IOException {
+    List<String> sheetNames = sheets.spreadsheets().get(spreadsheetId).execute().getSheets()
+            .stream()
+            .map(sheet -> sheet.getProperties().getTitle())
+            .toList();
+
+    if (!sheetNames.contains(sheetName)) {
+      log.error("Sheet '{}' does not exist in spreadsheet '{}'.", sheetName, spreadsheetId);
+      throw new IllegalStateException("Sheet '" + sheetName + "' does not exist.");
+    }
+    log.info("Sheet exist in spreadsheet '{}'.", sheetName);
   }
 }
