@@ -45,3 +45,5 @@ out
 gen
 .*env
 src/main/resources/googlesheet/google.json
+
+.DS_Store

@@ -33,13 +33,6 @@ public class SlackBoltServerConfig {
 		String botToken = System.getenv("SLACK_BOT_TOKEN");
 		String appToken = System.getenv("SLACK_APP_TOKEN");
 		String signingSecret = System.getenv("SLACK_SIGNING_SECRET");
-<<<<<<< Updated upstream
-		log.info("Bot Token: {}", botToken);
-		log.info("App Token: {}", appToken);
-		log.info("Signing Secret: {}", signingSecret);
-=======
-
->>>>>>> Stashed changes
 		App app = new App(AppConfig.builder()
 			.singleTeamBotToken(botToken)
 			.signingSecret(signingSecret)
