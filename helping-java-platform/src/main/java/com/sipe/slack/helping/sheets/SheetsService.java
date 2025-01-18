@@ -159,9 +159,6 @@ public class SheetsService {
     try {
       Sheets sheets = getSheets();
 
-      // 시트 존재 여부 확인
-      ensureSheetExists(sheets, GOOGLE_SHEET_ID, HANGOUT_SHEET_NAME);
-
       Map<String, Integer> allCrewMember = findAllCrewMember(sheets, GOOGLE_SHEET_ID);
 
       Integer row = allCrewMember.get(name);
@@ -184,18 +181,5 @@ public class SheetsService {
       log.error("Failed to save hangout attendance", e);
       throw new RuntimeException("Failed to save hangout attendance: " + e.getMessage(), e);
     }
-  }
-
-  private void ensureSheetExists(final Sheets sheets, final String spreadsheetId, final String sheetName) throws IOException {
-    List<String> sheetNames = sheets.spreadsheets().get(spreadsheetId).execute().getSheets()
-            .stream()
-            .map(sheet -> sheet.getProperties().getTitle())
-            .toList();
-
-    if (!sheetNames.contains(sheetName)) {
-      log.error("Sheet '{}' does not exist in spreadsheet '{}'.", sheetName, spreadsheetId);
-      throw new IllegalStateException("Sheet '" + sheetName + "' does not exist.");
-    }
-    log.info("Sheet exist in spreadsheet '{}'.", sheetName);
   }
 }
