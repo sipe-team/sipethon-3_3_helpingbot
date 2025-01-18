@@ -81,7 +81,7 @@ public class FindMeAttendanceCommand {
 			})
 			.sum();
 
-		blocks.add(section(s -> s.text(markdownText("현재 총 점수: " + totalScore))));
+		blocks.add(section(s -> s.text(markdownText("출석 점수: " + findMeSheetDto.crewMember().scores().getFirst()))));
 
 		// Calculate the total score for 지각 and 결석
 		blocks.add(section(s -> s.text(markdownText("출석 횟수: " + findMeSheetDto.crewMember().scores().stream().filter(score -> score.equals("10")).count()))));
