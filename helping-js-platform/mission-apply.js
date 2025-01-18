@@ -1,16 +1,21 @@
 import fs from 'fs';
 import { MISSION_APPLY_MODAL } from './const.js';
+import { GoogleSheet } from './googlesheet.js';
 
 export const handleApplyMission = async ({ body, client }) => {
   try {
     // CSV 파일 읽어오기
-    const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
-    const lines = fileContent.split('\n').filter((line) => line.trim());
-    const records = lines.slice(1);
+    // const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
+    // const lines = fileContent.split('\n').filter((line) => line.trim());
+    // const records = lines.slice(1);
+
+    const googlesheet = new GoogleSheet();
+    await googlesheet.init();
+    const records = await googlesheet.readMission();
 
     // 미션 옵션 만들기
     const missions = records.map((record, index) => {
-      const [_, __, subject, goal] = record.split(',');
+      const [_, __, subject, goal] = record;
       return {
         text: {
           type: 'plain_text',
@@ -91,59 +96,40 @@ export const handleApplyMissionModal = async ({ ack, body, view, client }) => {
     const userName = body.user.name;
     const selections = view.state.values.mission_selections;
 
-    const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
-    const lines = fileContent.split('\n').filter((line) => line.trim());
+    console.log('selections:', JSON.stringify(selections, null, 3));
 
-    let headers = lines[0].split(',');
-    let records = lines.slice(1).map((line) => line.split(','));
+    const googlesheet = new GoogleSheet();
+    await googlesheet.init();
+    const records = await googlesheet.readMission();
 
-    // 선택된 미션 정보 저장용
-    let selectedMissions = [];
+    {
+      [
+        {
+          fieldName: 'number1',
+          rank: 1,
+        },
+        {
+          fieldName: 'number2',
+          rank: 2,
+        },
+        {
+          fieldName: 'number3',
+          rank: 3,
+        },
+      ].map(async (item) => {
+        // 1순위
+        // id, member, rank
+        const first = selections[item.fieldName];
 
-    // 1,2,3순위 처리
-    const priorityMap = {
-      number1: '1순위',
-      number2: '2순위',
-      number3: '3순위',
-    };
+        const missionIndex = records.findIndex((record, index) => {
+          const [_, __, subject] = record;
 
-    Object.entries(priorityMap).forEach(([priority, headerName], index) => {
-      const selected = selections[priority]?.selected_option?.value;
-      if (selected) {
-        const missionIndex = parseInt(selected.split('_')[1]);
-        const columnIndex = headers.indexOf(headerName);
+          return subject === first.selected_option.text.text;
+        });
 
-        if (columnIndex !== -1) {
-          // 컬럼을 찾았을 때만 처리
-          let currentApplicants = records[missionIndex][columnIndex] || '';
-          records[missionIndex][columnIndex] = currentApplicants
-            ? `${currentApplicants};${userName}`
-            : userName;
-          selectedMissions.push(
-            `*${index + 1}순위*: ${records[missionIndex][2]}`
-          );
-        }
-      }
-    });
-
-    // CSV 파일로 다시 저장
-    const newContent = [
-      headers.join(','),
-      ...records.map((record) => record.join(',')),
-    ].join('\n');
-
-    fs.writeFileSync('data/missions.csv', newContent);
-
-    // 알림 메시지 보내기
-    const messageText = [
-      `🎉 ${userName}님의 미션 신청이 완료되었습니다!`,
-      ...selectedMissions,
-    ].join('\n');
-
-    await client.chat.postMessage({
-      channel: body.user.id,
-      text: messageText,
-    });
+        await googlesheet.addMemberToMission(missionIndex, userName, item.rank);
+      });
+    }
   } catch (error) {
     console.error('미션 신청 처리 중 에러:', error);
     console.error(error.stack);
