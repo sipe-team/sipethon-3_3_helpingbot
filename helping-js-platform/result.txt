@@ -1,0 +1,128 @@
+제출된 전체 데이터: {
+    "type": "view_submission",
+    "team": {
+      "id": "T0893APFQ0K",
+      "domain": "w1737100159-8ij979517"
+    },
+    "user": {
+      "id": "U088NT1E4MD",
+      "username": "heeji289",
+      "name": "heeji289",
+      "team_id": "T0893APFQ0K"
+    },
+    "api_app_id": "A0895UR3NSY",
+    "token": "luJigekJQIdM5kpQga5PjmtS",
+    "trigger_id": "8303017222422.8309363534019.3ec05c0addcb9d0815679a4283faa68d",
+    "view": {
+      "id": "V08964HDHRA",
+      "team_id": "T0893APFQ0K",
+      "type": "modal",
+      "blocks": [
+        {
+          "type": "input",
+          "block_id": "title",
+          "label": {
+            "type": "plain_text",
+            "text": "주제를 입력하세요",
+            "emoji": true
+          },
+          "optional": false,
+          "dispatch_action": false,
+          "element": {
+            "type": "plain_text_input",
+            "action_id": "input_title",
+            "dispatch_action_config": {
+              "trigger_actions_on": [
+                "on_enter_pressed"
+              ]
+            }
+          }
+        },
+        {
+          "type": "input",
+          "block_id": "goal",
+          "label": {
+            "type": "plain_text",
+            "text": "목표를 입력하세요",
+            "emoji": true
+          },
+          "optional": false,
+          "dispatch_action": false,
+          "element": {
+            "type": "plain_text_input",
+            "action_id": "goal_text",
+            "placeholder": {
+              "type": "plain_text",
+              "text": "목표를 적어보아요",
+              "emoji": true
+            },
+            "multiline": true,
+            "dispatch_action_config": {
+              "trigger_actions_on": [
+                "on_enter_pressed"
+              ]
+            }
+          }
+        }
+      ],
+      "private_metadata": "",
+      "callback_id": "modal_submission",
+      "state": {
+        "values": {
+          "title": {
+            "input_title": {
+              "type": "plain_text_input",
+              "value": "뜨헉"
+            }
+          },
+          "goal": {
+            "goal_text": {
+              "type": "plain_text_input",
+              "value": "하하"
+            }
+          }
+        }
+      },
+      "hash": "1737102723.OB8sWu2Q",
+      "title": {
+        "type": "plain_text",
+        "text": "미션 발제",
+        "emoji": true
+      },
+      "clear_on_close": false,
+      "notify_on_close": false,
+      "close": {
+        "type": "plain_text",
+        "text": "취소",
+        "emoji": true
+      },
+      "submit": {
+        "type": "plain_text",
+        "text": "제출",
+        "emoji": true
+      },
+      "previous_view_id": null,
+      "root_view_id": "V08964HDHRA",
+      "app_id": "A0895UR3NSY",
+      "external_id": "",
+      "app_installed_team_id": "T0893APFQ0K",
+      "bot_id": "B088WR098TY"
+    },
+    "response_urls": [],
+    "is_enterprise_install": false,
+    "enterprise": null
+  }
+  View 상태: {
+    "title": {
+      "input_title": {
+        "type": "plain_text_input",
+        "value": "뜨헉"
+      }
+    },
+    "goal": {
+      "goal_text": {
+        "type": "plain_text_input",
+        "value": "하하"
+      }
+    }
+  }
