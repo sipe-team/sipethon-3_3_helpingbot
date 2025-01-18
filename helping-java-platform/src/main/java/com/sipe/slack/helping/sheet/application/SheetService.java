@@ -1,5 +1,7 @@
 package com.sipe.slack.helping.sheet.application;
 
+import static java.util.stream.Collectors.toMap;
+
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
@@ -7,10 +9,14 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.sipe.slack.helping.sheet.dto.Attendance;
+import com.sipe.slack.helping.sheet.dto.CrewMember;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -22,22 +28,67 @@ public class SheetService {
   private static final String APPLICATION_NAME = "Google Sheets Application";
   private static final String CREDENTIALS_FILE_PATH = "/googlesheet/google.json";
   private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+  public static final int START_CREW_MEMBER_ROW = 2;
+  public static final char START_WEEK_COLUMN = 'D';
 
   private Sheets sheets;
 
-  public void writeToSheet(String spreadsheetId, String range, List<List<Object>> values) {
+  public void attendance(List<String> members, int week, String spreadsheetId) {
     try {
-      Sheets service = getSheets();
-      ValueRange body = new ValueRange().setValues(values);
-      UpdateValuesResponse result = service.spreadsheets().values()
-          .update(spreadsheetId, range, body)
-          .setValueInputOption("USER_ENTERED")
-          .execute();
-      log.info("Updated rows: {}", result.getUpdatedRows());
+      Sheets sheets = getSheets();
+      Map<String, Integer> allCrewMember = findAllCrewMember(sheets, spreadsheetId);
+      for (String member : members) {
+        Integer row = allCrewMember.get(member);
+        if (row == null) {
+          log.warn("없는 사람! " + member);
+          continue;
+        }
+        String range = getWeekColumn(week) + row;
+        writeToSheet(sheets, range, Attendance.ATTENDANCE.getScore(), spreadsheetId);
+      }
     } catch (Exception e) {
       log.error("Failed to write data to the spreadsheet", e);
       throw new RuntimeException("Failed to write data to the spreadsheet: " + e.getMessage(), e);
     }
+  }
+
+  private Map<String, Integer> findAllCrewMember(Sheets sheets, String spreadsheetId) throws IOException {
+    // CrewMember의 이름은 B열에 기입된다. 
+    ValueRange response = sheets.spreadsheets().values()
+        .get(spreadsheetId, "B2:B100")
+        .execute();
+
+    return getCrewMembers(response)
+        .stream()
+        .collect(toMap(CrewMember::name, CrewMember::row, (existing, replacement) -> existing));
+  }
+
+  private List<CrewMember> getCrewMembers(ValueRange response) {
+    List<CrewMember> crewMembers = new ArrayList<>();
+    List<List<Object>> values = response.getValues();
+    for (int i = 0; i < values.size(); i++) {
+      List<Object> objects = values.get(i);
+      if (objects == null || objects.isEmpty()) {
+        // 더 이상 스프레드시트에 CrewMember가 없을 때 조회를 멈춘다.
+        break;
+      }
+      crewMembers.add(new CrewMember(i + START_CREW_MEMBER_ROW, (String) objects.getFirst()));
+    }
+    return crewMembers;
+  }
+
+  private String getWeekColumn(int week) {
+    return Character.toString((char) (START_WEEK_COLUMN + week));
+  }
+
+  private void writeToSheet(Sheets sheets, String range, String word, String spreadsheetId) throws IOException {
+    List<List<Object>> values = List.of(Collections.singletonList(word));
+    ValueRange body = new ValueRange().setValues(values);
+    UpdateValuesResponse result = sheets.spreadsheets().values()
+        .update(spreadsheetId, range, body)
+        .setValueInputOption("USER_ENTERED")
+        .execute();
+    log.info("Updated rows: {}", result.getUpdatedRows());
   }
 
   private Sheets getSheets() throws IOException, GeneralSecurityException {
