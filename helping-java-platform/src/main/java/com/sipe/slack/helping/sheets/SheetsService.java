@@ -12,6 +12,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.sipe.slack.helping.attendance.FindMeSheetDto;
 import com.sipe.slack.helping.sheets.dto.Attendance;
 import com.sipe.slack.helping.sheets.dto.CrewMember;
+import com.sipe.slack.helping.attendance.FindMeCrewMember;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -113,7 +116,6 @@ public class SheetsService {
   }
 
   public FindMeSheetDto findMeSheetAttendance(String member) {
-    log.info("Find me from the spreadsheet: {}", member);
     try {
       Sheets sheets = getSheets();
       Map<String, Integer> allCrewMember = findAllCrewMember(sheets, GOOGLE_SHEET_ID);
@@ -123,15 +125,19 @@ public class SheetsService {
         return null;
       }
       ValueRange response = sheets.spreadsheets().values()
-          .get(GOOGLE_SHEET_ID, "D" + row + ":ZZ" + row)
+          .get(GOOGLE_SHEET_ID, "D" + row + ":NN" + row)
           .execute();
+
+      List<String> values = response.getValues().getFirst().stream()
+          .map(Object::toString)
+          .toList();
       // find CrewMember by member
-      List<CrewMember> crewMembers = getCrewMembers(response);
-      CrewMember me = crewMembers.stream()
-          .filter(crewMember -> crewMember.name().equals(member))
-          .findFirst()
-          .orElseThrow(() -> new RuntimeException("Failed to find me from the spreadsheet"));
-      return new FindMeSheetDto(me);
+      // List<CrewMember> crewMembers = getCrewMembers(response);
+      // CrewMember me = crewMembers.stream()
+      //     .filter(crewMember -> crewMember.name().equals(member))
+      //     .findFirst()
+      //     .orElseThrow(() -> new RuntimeException("Failed to find me from the spreadsheet"));
+      return new FindMeSheetDto(FindMeCrewMember.of(row, member, values));
     } catch (Exception e) {
       log.error("Failed to find data from the spreadsheet", e);
       throw new RuntimeException("Failed to find data from the spreadsheet: " + e.getMessage(), e);

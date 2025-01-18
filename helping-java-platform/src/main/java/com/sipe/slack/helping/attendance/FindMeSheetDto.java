@@ -1,15 +1,10 @@
 package com.sipe.slack.helping.attendance;
 
-import java.util.List;
-
-import com.sipe.slack.helping.sheets.dto.CrewMember;
-
-
 public record FindMeSheetDto(
-	CrewMember crewMember
+	FindMeCrewMember crewMember
 ) {
 	// static method of
-	private static FindMeSheetDto of(CrewMember crewMember) {
+	private static FindMeSheetDto of(FindMeCrewMember crewMember) {
 		return new FindMeSheetDto(crewMember);
 	}
 }
