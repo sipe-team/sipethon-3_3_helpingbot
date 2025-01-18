@@ -16,6 +16,7 @@ import {
   MISSION_APPLY_MODAL,
   MISSION_SUBMIT_ACTION,
   MISSION_LIST_ACTION,
+  MISSION_APPLY_ACTION,
 } from './const.js';
 
 import { handleMissionList, handleViewMissionDetail } from './mission-list.js';
@@ -42,7 +43,7 @@ app.view(MISSION_SUBMIT_MODAL, handleSubmitMissionModal);
 app.action(MISSION_LIST_ACTION, handleMissionList);
 app.action(/view_mission_\d+/, handleViewMissionDetail);
 
-app.command('/미션신청', handleApplyMission);
+app.action(MISSION_APPLY_ACTION, handleApplyMission);
 app.view(MISSION_APPLY_MODAL, handleApplyMissionModal);
 
 app.command('/미션선발', missionFinalApi.handleMissionFinalSelect);
@@ -59,4 +60,3 @@ app.view('import_csv_modal', missionFinalApi.handleImportCSVModal);
 
 const googleSheet = new GoogleSheet();
 await googleSheet.init();
-await googleSheet.writeMission(['John Doe', 30, 'New York']);

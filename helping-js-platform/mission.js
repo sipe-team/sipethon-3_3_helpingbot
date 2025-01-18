@@ -1,4 +1,8 @@
-import { MISSION_LIST_ACTION, MISSION_SUBMIT_ACTION } from './const.js';
+import {
+  MISSION_APPLY_ACTION,
+  MISSION_LIST_ACTION,
+  MISSION_SUBMIT_ACTION,
+} from './const.js';
 
 export const handleMission = async ({ command, ack, client }) => {
   await ack();
@@ -42,7 +46,7 @@ export const handleMission = async ({ command, ack, client }) => {
                 text: '미션 신청하기',
                 emoji: true,
               },
-              action_id: 'mission_apply',
+              action_id: MISSION_APPLY_ACTION,
             },
           ],
         },

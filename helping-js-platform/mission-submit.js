@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { MISSION_SUBMIT_MODAL } from './const.js';
 import dotenv from 'dotenv';
+import { GoogleSheet } from './googlesheet.js';
 
 dotenv.config();
 
@@ -135,10 +136,9 @@ export const handleSubmitMissionModal = async ({ ack, body, view, client }) => {
   await ack();
 
   try {
-    const sanitizeForCSV = (text) => {
+    const sanitizeText = (text) => {
       if (!text) return '';
-      // 값이 있을 때만 따옴표로 감싸고 이스케이프
-      return text ? `"${text.replace(/\n/g, ' ').replace(/"/g, '""')}"` : '';
+      return text.replace(/\n\s*\n/g, '\n').trim();
     };
 
     const teamName = view.state.values[NAME_INPUT][NAME_INPUT].value;
@@ -147,37 +147,25 @@ export const handleSubmitMissionModal = async ({ ack, body, view, client }) => {
     const rule = view.state.values[RULE_INPUT][RULE_INPUT].value;
     const plan = view.state.values[PLAN_INPUT][PLAN_INPUT].value;
 
-    if (!fs.existsSync('data')) {
-      fs.mkdirSync('data');
-    }
+    const googleSheet = new GoogleSheet();
+    await googleSheet.init();
 
     try {
-      // CSV 파일 처리
-      let content = '';
-      if (!fs.existsSync('data/missions.csv')) {
-        content =
-          '날짜,팀 이름,주제,목표,규칙,계획,1순위 신청자,2순위 신청자,3순위 신청자,최종 참여 인원\n';
-        fs.writeFileSync('data/missions.csv', content);
-      }
-
-      const newRow = `${new Date().toISOString()},${sanitizeForCSV(
+      const newRow = `${new Date().toISOString()},${sanitizeText(
         teamName
-      )},${sanitizeForCSV(subject)},${sanitizeForCSV(goal)},${sanitizeForCSV(
+      )},${sanitizeText(subject)},${sanitizeText(goal)},${sanitizeText(
         rule
-      )},${sanitizeForCSV(plan)},,,,\n`;
-      fs.appendFileSync('data/missions.csv', newRow);
+      )},${sanitizeText(plan)},,,,\n`;
+
+      const newData = newRow.split(',');
+
+      await googleSheet.writeMission(newData);
 
       // 성공 메시지 전송
       await client.chat.postMessage({
-        channel: process.env.MISSION_CHANNER_ID,
+        channel: 'C0893D5CG6N',
         text: `🎯 새로운 미션이 등록되었습니다!\n*주제*: ${subject}\n*목표*: ${goal}\n*작성자*: <@${body.user.id}>`,
       });
-
-      // // 제출한 사용자에게 DM으로 성공 메시지
-      // await client.chat.postMessage({
-      //   channel: body.user.id,
-      //   text: `✅ 미션이 성공적으로 등록되었습니다!`,
-      // });
     } catch (error) {
       // 파일 처리 실패 시 사용자에게 알림
       await client.chat.postMessage({

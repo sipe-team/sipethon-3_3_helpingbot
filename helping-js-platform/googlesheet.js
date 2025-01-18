@@ -10,13 +10,21 @@ export class GoogleSheet {
       key: process.env.GOOGLE_PRIVATE_KEY,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
-    this.doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, serviceAccountAuth);
+    this.doc = new GoogleSpreadsheet(
+      process.env.GOOGLE_SHEET_ID,
+      serviceAccountAuth
+    );
+
     await this.doc.loadInfo();
   }
 
   async writeMission(data) {
-    const sheet = this.doc.sheetsByIndex[1]; // 미션 목록 시트
-    await sheet.addRow(data);
+    try {
+      const sheet = this.doc.sheetsByIndex[1]; // 미션 목록 시트
+      await sheet.addRow(data);
+    } catch (err) {
+      console.error(err);
+    }
   }
   async readMission(sheetIndex) {}
 }

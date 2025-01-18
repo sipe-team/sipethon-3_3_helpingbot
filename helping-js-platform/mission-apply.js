@@ -1,9 +1,7 @@
 import fs from 'fs';
-import { requiredColumns } from './const.js';
+import { MISSION_APPLY_MODAL } from './const.js';
 
-export const handleApplyMission = async ({ command, ack, client }) => {
-  await ack();
-
+export const handleApplyMission = async ({ body, client }) => {
   try {
     // CSV 파일 읽어오기
     const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
@@ -16,7 +14,7 @@ export const handleApplyMission = async ({ command, ack, client }) => {
       return {
         text: {
           type: 'plain_text',
-          text: `${subject} (${goal})`,
+          text: `${subject}`,
           emoji: true,
         },
         value: `mission_${index}`,
@@ -25,10 +23,10 @@ export const handleApplyMission = async ({ command, ack, client }) => {
 
     // 모달 열기
     const result = await client.views.open({
-      trigger_id: command.trigger_id,
+      trigger_id: body.trigger_id,
       view: {
         type: 'modal',
-        callback_id: 'mission_apply_submission',
+        callback_id: MISSION_APPLY_MODAL,
         title: {
           type: 'plain_text',
           text: '미션 신청',
@@ -90,8 +88,7 @@ export const handleApplyMissionModal = async ({ ack, body, view, client }) => {
   await ack();
 
   try {
-    // const userName = body.user.name;
-    const userName = '성현핑';
+    const userName = body.user.name;
     const selections = view.state.values.mission_selections;
 
     const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
