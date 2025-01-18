@@ -87,7 +87,8 @@
 /출석여부
 ```
 
-![출석](https://github.com/user-attachments/assets/dd57e2bd-8cc7-4531-877a-db9db2d29100)
+![출석](https://github-production-user-asset-6210df.s3.amazonaws.com/83820185/404531880-dd57e2bd-8cc7-4531-877a-db9db2d29100.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250118%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250118T115633Z&X-Amz-Expires=300&X-Amz-Signature=46e07ed3f79b8ad282a99b4ad5f58ea6b9f41fc70c0a85a9313adb0917cd1157&X-Amz-SignedHeaders=host)
+
 
 <br>
 
