@@ -4,6 +4,7 @@ import com.sipe.slack.helping.sheets.HangOutService;
 import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.methods.SlackApiException;
+import com.slack.api.methods.response.users.UsersInfoResponse;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.model.block.Blocks;
 import static com.slack.api.model.block.Blocks.asBlocks;
@@ -39,8 +40,8 @@ public class HangOut {
 
                 // 모달창 설정
                 ViewsOpenResponse response = ctx.client().viewsOpen(r -> r
-                        .triggerId(req.getPayload().getTriggerId())
-                        .view(buildHangoutView())
+                    .triggerId(req.getPayload().getTriggerId())
+                    .view(buildHangoutView())
                 );
 
                 if (!response.isOk()) {
@@ -69,15 +70,6 @@ public class HangOut {
                         Blocks.section(selection -> selection
                                 .blockId("hangout_activity_block")
                                 .text(BlockCompositions.plainText("오늘의 활동: " + todayActivity))
-                        ),
-                        // 이름 입력 필드
-                        Blocks.input(input -> input
-                                .blockId("hangout_name_block")
-                                .label(BlockCompositions.plainText("이름"))
-                                .element(plainTextInput(pti -> pti
-                                        .actionId("hangout_name_input")
-                                        .placeholder(BlockCompositions.plainText("이름을 입력해주세요."))
-                                ))
                         ),
                         // 참석 여부 필드
                         Blocks.input(input -> input
@@ -108,18 +100,25 @@ public class HangOut {
         return (req, ctx) -> {
             // 즉시 응답
             ctx.ack();
+            String userId = req.getPayload().getUser().getId();
+
+            UsersInfoResponse response = ctx.client().usersInfo(r -> r.user(userId));
+            String realName = response.getUser().getRealName();
+            if (realName.contains("3기")) {
+                realName = realName.substring(3);
+            }
 
             try {
                 // 데이터 가져오기
                 String todayActivity = getTodayActivityMessage();
-                String name = req.getPayload().getView().getState().getValues()
-                        .get("hangout_name_block").get("hangout_name_input").getValue();
+
                 String attendance = req.getPayload().getView().getState().getValues()
                         .get("hangout_attendance_block").get("hangout_attendance_input").getSelectedOption().getValue();
 
                 // Google Sheets 저장
                 try {
-                    hangOutService.saveHangoutAttendance(todayActivity, name, attendance.equals("yes") ? "참석" : "불참");
+                    hangOutService.saveHangoutAttendance(todayActivity, realName, attendance.equals("yes") ? "참석" : "불참");
+                    String finalRealName = realName;
                     ctx.client().chatPostMessage(r -> r
                             .channel(req.getPayload().getUser().getId())
                             .text(String.format(
@@ -127,7 +126,7 @@ public class HangOut {
                                             "- 활동: %s\n" +
                                             "- 이름: %s\n" +
                                             "- 참석 여부: %s",
-                                    todayActivity, name, attendance.equals("yes") ? "참석" : "불참"
+                                    todayActivity, finalRealName, attendance.equals("yes") ? "참석" : "불참"
                             ))
                     );
                 } catch (RuntimeException e) {
