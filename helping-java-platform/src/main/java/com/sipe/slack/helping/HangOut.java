@@ -1,5 +1,6 @@
 package com.sipe.slack.helping;
 
+import com.sipe.slack.helping.sheets.HangOutService;
 import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.methods.SlackApiException;
@@ -25,6 +26,11 @@ import java.util.Map;
 @Slf4j
 @Component
 public class HangOut {
+    private final HangOutService hangOutService;
+
+    public HangOut(HangOutService hangOutService) {
+        this.hangOutService = hangOutService;
+    }
 
     public SlashCommandHandler HangoutHandler() {
         return (req, ctx) -> {
@@ -103,31 +109,34 @@ public class HangOut {
             // 즉시 응답
             ctx.ack();
 
-            // 데이터 처리
             try {
-
-                // 오늘의 활동 메시지 가져오기
+                // 데이터 가져오기
                 String todayActivity = getTodayActivityMessage();
-
-                // 이름 가져오기
                 String name = req.getPayload().getView().getState().getValues()
                         .get("hangout_name_block").get("hangout_name_input").getValue();
-
-                // 참석 여부 가져오기
                 String attendance = req.getPayload().getView().getState().getValues()
                         .get("hangout_attendance_block").get("hangout_attendance_input").getSelectedOption().getValue();
 
-                // 메시지 구성
-                String responseMessage = String.format(
-                        "*뒷풀이 참석 정보*\n- 활동: %s\n- 이름: %s\n- 참석 여부: %s",
-                        todayActivity, name, attendance.equals("yes") ? "참석" : "불참"
-                );
+                // Google Sheets 저장
+                try {
+                    hangOutService.saveHangoutAttendance(todayActivity, name, attendance.equals("yes") ? "참석" : "불참");
+                    ctx.client().chatPostMessage(r -> r
+                            .channel(req.getPayload().getUser().getId())
+                            .text(String.format(
+                                    "*뒷풀이 참석 정보*\n" +
+                                            "- 활동: %s\n" +
+                                            "- 이름: %s\n" +
+                                            "- 참석 여부: %s",
+                                    todayActivity, name, attendance.equals("yes") ? "참석" : "불참"
+                            ))
+                    );
+                } catch (RuntimeException e) {
+                    ctx.client().chatPostMessage(r -> r
+                            .channel(req.getPayload().getUser().getId())
+                            .text("뒷풀이 참석 정보를 저장하는 데 실패했습니다. 관리자에게 문의해주세요.")
+                    );
+                }
 
-                // 결과를 사용자 DM으로 전송
-                ctx.client().chatPostMessage(r -> r
-                        .channel(req.getPayload().getUser().getId())
-                        .text(responseMessage)
-                );
             } catch (Exception e) {
                 log.error("Error handling submission: {}", e.getMessage(), e);
             }
