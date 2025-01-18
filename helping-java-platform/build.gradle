@@ -42,6 +42,17 @@ dependencies {
 //    implementation("com.slack.api:bolt-servlet:${slackVersion}")
 //    implementation("com.slack.api:bolt-jetty:${slackVersion}")
 //    implementation("org.slf4j:slf4j-simple:1.7.36")
+    implementation("com.slack.api:slack-api-model:${slackVersion}")
+    implementation("com.slack.api:slack-app-backend:${slackVersion}")
+    implementation("com.slack.api:bolt-servlet:${slackVersion}")
+    implementation("com.slack.api:bolt-socket-mode:${socketMode}")
+    implementation("com.slack.api:bolt-jetty:${slackVersion}")
+
+    implementation("org.slf4j:slf4j-simple:${slf4jVersion}")
+    implementation("javax.websocket:javax.websocket-api:${websocketVersion}")
+    // org.java-websocket:Java-WebSocket
+    implementation 'org.java-websocket:Java-WebSocket:1.6.0'
+    implementation("org.glassfish.tyrus.bundles:tyrus-standalone-client:${glassfishVersion}")
 }
 
 tasks.named('test') {
