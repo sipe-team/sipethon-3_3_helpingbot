@@ -27,7 +27,7 @@ export class GoogleSheet {
   async writeMission(data) {
     try {
       const sheet = this.doc.sheetsByIndex[1]; // 미션 목록 시트
-      await sheet.addRow(data);
+      sheet.addRow(data);
     } catch (err) {
       console.error(err);
     }
@@ -53,7 +53,7 @@ export class GoogleSheet {
       }
       const rankUsers = targetMission._rawData[rank + 5];
       targetMission._rawData[rank + 5] = `${rankUsers}${rankUsers ? ',' : ''} ${member}`;
-      await targetMission.save();
+      targetMission.save();
     } catch (err) {
       console.error(err);
     }

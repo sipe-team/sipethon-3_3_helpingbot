@@ -115,7 +115,7 @@ export const handleApplyMissionModal = async ({ ack, body, view, client }) => {
           fieldName: 'number3',
           rank: 3,
         },
-      ].map(async (item) => {
+      ].map(async item => {
         // 1순위
         // id, member, rank
 
@@ -129,7 +129,7 @@ export const handleApplyMissionModal = async ({ ack, body, view, client }) => {
           return subject === first?.selected_option.text.text;
         });
 
-        await googlesheet.addMemberToMission(missionIndex, userName, item.rank);
+        googlesheet.addMemberToMission(missionIndex, userName, item.rank);
       });
     }
   } catch (error) {

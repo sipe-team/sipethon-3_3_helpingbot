@@ -156,7 +156,7 @@ export const handleSubmitMissionModal = async ({ ack, body, view, client }) => {
 
       const newData = newRow.split(',');
 
-      await googlesheet.writeMission(newData);
+      googlesheet.writeMission(newData);
 
       // 성공 메시지 전송
       await client.chat.postMessage({
