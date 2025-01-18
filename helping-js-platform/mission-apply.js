@@ -50,6 +50,7 @@ export const handleApplyMission = async ({ body, client }) => {
           {
             type: 'actions',
             block_id: 'mission_selections',
+            // optional: false,
             elements: [
               {
                 type: 'static_select',
@@ -114,15 +115,18 @@ export const handleApplyMissionModal = async ({ ack, body, view, client }) => {
           fieldName: 'number3',
           rank: 3,
         },
-      ].map(async item => {
+      ].map(async (item) => {
         // 1순위
         // id, member, rank
+
         const first = selections[item.fieldName];
+
+        if (!first.selected_option) return;
 
         const missionIndex = records.findIndex((record, index) => {
           const [_, __, subject] = record;
 
-          return subject === first.selected_option.text.text;
+          return subject === first?.selected_option.text.text;
         });
 
         await googlesheet.addMemberToMission(missionIndex, userName, item.rank);
