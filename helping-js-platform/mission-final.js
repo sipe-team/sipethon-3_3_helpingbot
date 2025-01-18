@@ -1,5 +1,6 @@
 import fs from 'fs';
 import dotenv from 'dotenv';
+import { GoogleSheet } from './googlesheet.js';
 
 dotenv.config();
 
@@ -20,65 +21,20 @@ export const handleMissionFinalSelect = async ({ command, ack, client }) => {
         blocks: [
           {
             type: 'actions',
-            block_id: 'file_actions',
+            block_id: 'send_result',
             elements: [
               {
                 type: 'button',
                 text: {
                   type: 'plain_text',
-                  text: 'Export CSV',
+                  text: '팀 배정 결과 알림',
                   emoji: true,
                 },
                 style: 'primary',
-                action_id: 'export_csv',
-              },
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: 'Import CSV',
-                  emoji: true,
-                },
-                action_id: 'import_csv',
+                action_id: 'send_result',
               },
             ],
           },
-          {
-            type: 'divider',
-          },
-          //   {
-          //     type: 'actions',
-          //     block_id: 'mission_selections',
-          //     elements: [
-          //       {
-          //         type: 'static_select',
-          //         placeholder: {
-          //           type: 'plain_text',
-          //           text: '1순위',
-          //         },
-          //         options: missions,
-          //         action_id: 'number1',
-          //       },
-          //       {
-          //         type: 'static_select',
-          //         placeholder: {
-          //           type: 'plain_text',
-          //           text: '2순위',
-          //         },
-          //         options: missions,
-          //         action_id: 'number2',
-          //       },
-          //       {
-          //         type: 'static_select',
-          //         placeholder: {
-          //           type: 'plain_text',
-          //           text: '3순위',
-          //         },
-          //         options: missions,
-          //         action_id: 'number3',
-          //       },
-          //     ],
-          //   },
         ],
       },
     });
@@ -87,137 +43,85 @@ export const handleMissionFinalSelect = async ({ command, ack, client }) => {
   }
 };
 
-export const handleExportCSV = async ({ ack, body, client }) => {
-  await ack();
+export const handleSendResult = async ({ body, ack, client }) => {
+  if (ack) await ack();
 
   try {
-    const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
+    const googlesheet = new GoogleSheet();
+    await googlesheet.init();
+    const records = await googlesheet.readMission();
 
-    // V2 API를 사용하여 파일 업로드
-    const result = await client.files.uploadV2({
-      channel_id: process.env.MISSION_CHANNER_ID,
-      filename: 'missions.csv',
-      content: fileContent,
-      initial_comment: '현재 미션 데이터입니다. 📊',
-    });
-
-    console.log('파일 업로드 성공:', result);
-  } catch (error) {
-    console.error('CSV 내보내기 중 에러:', error);
-
-    // 에러 발생 시 사용자에게 알림
-    await client.chat.postMessage({
-      channel: process.env.MISSION_CHANNER_ID,
-      text: 'CSV 파일 내보내기 중 문제가 발생했습니다. 😢',
-    });
-  }
-};
-
-export const handleImportCSV = async ({ ack, body, client }) => {
-  await ack();
-
-  try {
-    // 새로운 모달을 스택에 추가
-    await client.views.push({
-      trigger_id: body.trigger_id,
-      view: {
-        type: 'modal',
-        callback_id: 'import_csv_modal',
-        title: {
-          type: 'plain_text',
-          text: 'CSV 파일 업로드',
-          emoji: true,
-        },
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '최종 인원이 선발된 CSV 파일을 업로드해주세요.',
-            },
-          },
-          {
-            type: 'input',
-            block_id: 'file_input',
-            label: {
-              type: 'plain_text',
-              text: 'CSV 파일 선택',
-            },
-            element: {
-              type: 'file_input',
-              action_id: 'csv_file',
-            },
-          },
-        ],
-        submit: {
-          type: 'plain_text',
-          text: '업로드',
-          emoji: true,
-        },
-        private_metadata: body.view.id, // 원래 모달의 view_id 저장
-      },
-    });
-  } catch (error) {
-    console.error('파일 업로드 모달 푸시 중 에러:', error);
-  }
-};
-
-export const handleImportCSVModal = async ({ ack, body, view, client }) => {
-  await ack();
-
-  try {
-    const fileId = view.state.values.file_input.csv_file.files[0];
-
-    const fileContent = fileId.preview;
-
-    const lines = fileContent.split('\n').filter((line) => line.trim());
-    const records = lines.slice(1); // 헤더 제외
-
-    const finalSelections = records
-      .map((record) => {
-        const columns = record.split(',');
-        return {
-          subject: columns[2].trim(),
-          final: columns[7] ? columns[7].trim() : '',
-        };
-      })
-      .filter((selection) => selection.final); // 최종 컬럼에 값이 있는 것만
-
+    // 메시지 블록 생성
     const messageBlocks = [
       {
         type: 'header',
         text: {
           type: 'plain_text',
-          text: '🎉 미션별 최종 선발 결과',
+          text: '🎉 미션 최종 배정 결과',
           emoji: true,
         },
       },
       {
         type: 'divider',
       },
-      ...finalSelections.map((selection) => ({
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `*${selection.subject}*\n최종 선발: ${selection.final}`,
-        },
-      })),
     ];
 
-    await client.chat.postMessage({
-      channel: process.env.MISSION_CHANNER_ID,
-      blocks: messageBlocks,
+    // 각 미션 데이터를 섹션 블록으로 변환
+    records.forEach((row) => {
+      const [_, teamName, subject, goal, rule, plan, __, ___, ____, final] =
+        row;
+
+      // 빈 데이터는 건너뛰기
+      if (!teamName && !subject && !final) return;
+
+      messageBlocks.push(
+        {
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `*팀명:*\n${teamName || '-'}`,
+            },
+            {
+              type: 'mrkdwn',
+              text: `*미션명:*\n${subject || '-'}`,
+            },
+            {
+              type: 'mrkdwn',
+              text: `*최종 배정:*\n${final || '-'}`,
+            },
+          ],
+        },
+        {
+          type: 'divider',
+        }
+      );
     });
 
+    // 마지막 업데이트 시간 추가
+    messageBlocks.push({
+      type: 'context',
+      elements: [
+        {
+          type: 'mrkdwn',
+          text: `마지막 업데이트: ${new Date().toLocaleString('ko-KR')}`,
+        },
+      ],
+    });
+
+    // 메시지 전송
     await client.chat.postMessage({
-      channel: body.user.id,
-      text: '✅ 최종 선발 결과가 채널에 공지되었습니다.',
+      channel: 'C0893D5CG6N',
+      blocks: messageBlocks,
+      text: '미션 최종 배정 결과입니다.', // 알림이 꺼져있는 경우를 위한 폴백 텍스트
     });
   } catch (error) {
-    console.error('Error:', error);
+    console.error('미션 결과 전송 중 에러:', error);
+
+    // 에러 메시지 전송
     await client.chat.postMessage({
-      channel: body.user.id,
-      text: '❌ 파일 처리 중 문제가 발생했습니다: ' + error.message,
+      channel: 'C0893D5CG6N',
+      text: '❌ 미션 배정 결과 전송 중 오류가 발생했습니다.',
     });
   }
 };

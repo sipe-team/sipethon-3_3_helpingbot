@@ -3,8 +3,14 @@ const { App } = pkg;
 
 import dotenv from 'dotenv';
 
-import { handleSubmitMission, handleSubmitMissionModal } from './mission-submit.js';
-import { handleApplyMission, handleApplyMissionModal } from './mission-apply.js';
+import {
+  handleSubmitMission,
+  handleSubmitMissionModal,
+} from './mission-submit.js';
+import {
+  handleApplyMission,
+  handleApplyMissionModal,
+} from './mission-apply.js';
 import {
   MISSION_SUBMIT_MODAL,
   MISSION_APPLY_MODAL,
@@ -40,10 +46,8 @@ app.action(/view_mission_\d+/, handleViewMissionDetail);
 app.action(MISSION_APPLY_ACTION, handleApplyMission);
 app.view(MISSION_APPLY_MODAL, handleApplyMissionModal);
 
-app.command('/미션선발', missionFinalApi.handleMissionFinalSelect);
-app.action('export_csv', missionFinalApi.handleExportCSV);
-app.action('import_csv', missionFinalApi.handleImportCSV);
-app.view('import_csv_modal', missionFinalApi.handleImportCSVModal);
+app.command('/미션관리', missionFinalApi.handleMissionFinalSelect);
+app.action('send_result', missionFinalApi.handleSendResult);
 
 (async () => {
   // Start your app
