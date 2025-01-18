@@ -66,10 +66,37 @@ public class FindMeAttendanceCommand {
 		blocks.add(section(s -> s.text(markdownText("*" + findMeSheetDto.crewMember().name() + "* 님의 출석 여부입니다."))));
 		blocks.add(divider());
 
-		// Add attendance count section
+		// Add total score section
+		int exclusiveScore = findMeSheetDto.crewMember().scores().stream()
+			.mapToInt(score -> {
+				if (score.equals("5")) return 5;
+				if (score.equals("0")) return 10;
+				return 0;
+			})
+			.sum();
+
+		// Add total score section
+		int totalScore = findMeSheetDto.crewMember().scores().stream()
+			.mapToInt(score -> {
+				return switch (score) {
+					case "10" -> 10;
+					case "5" -> 5;
+					default -> 0;
+				};
+			})
+			.sum();
+
+		blocks.add(section(s -> s.text(markdownText("총 점수: " + totalScore))));
+
+		// Calculate the total score for 지각 and 결석
 		blocks.add(section(s -> s.text(markdownText("출석 횟수: " + findMeSheetDto.crewMember().scores().stream().filter(score -> score.equals("10")).count()))));
 		blocks.add(section(s -> s.text(markdownText("지각 횟수: " + findMeSheetDto.crewMember().scores().stream().filter(score -> score.equals("5")).count()))));
 		blocks.add(section(s -> s.text(markdownText("결석 횟수: " + findMeSheetDto.crewMember().scores().stream().filter(score -> score.equals("0")).count()))));
+
+
+		// Determine if the total score is 30 or more
+		String expulsionStatus = exclusiveScore >= 30 ? "Y" : "N";
+		blocks.add(section(s -> s.text(markdownText("제명 대상 여부: " + expulsionStatus))));
 		blocks.add(divider());
 
 		// Add sections for each week

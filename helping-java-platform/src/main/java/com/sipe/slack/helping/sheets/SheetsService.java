@@ -9,11 +9,9 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.sipe.slack.helping.attendance.FindMeSheetDto;
-import com.sipe.slack.helping.sheets.dto.Attendance;
-import com.sipe.slack.helping.sheets.dto.CrewMember;
 import com.sipe.slack.helping.attendance.FindMeCrewMember;
-
+import com.sipe.slack.helping.attendance.FindMeSheetDto;
+import com.sipe.slack.helping.sheets.dto.CrewMember;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -21,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -42,7 +39,7 @@ public class SheetsService {
   private Sheets sheets;
 
   @Async
-  public void attendance(List<String> members, int week) {
+  public void attendance(List<String> members, int week, String status) {
     try {
       Sheets sheets = getSheets();
       Map<String, Integer> allCrewMember = findAllCrewMember(sheets, GOOGLE_SHEET_ID);
@@ -53,7 +50,7 @@ public class SheetsService {
           continue;
         }
         String range = getWeekColumn(week) + row;
-        writeToSheet(sheets, range, Attendance.ATTENDANCE.getScore(), GOOGLE_SHEET_ID);
+        writeToSheet(sheets, range, status, GOOGLE_SHEET_ID);
       }
     } catch (Exception e) {
       log.error("Failed to write data to the spreadsheet", e);
@@ -133,12 +130,7 @@ public class SheetsService {
       List<String> values = response.getValues().getFirst().stream()
           .map(Object::toString)
           .toList();
-      // find CrewMember by member
-      // List<CrewMember> crewMembers = getCrewMembers(response);
-      // CrewMember me = crewMembers.stream()
-      //     .filter(crewMember -> crewMember.name().equals(member))
-      //     .findFirst()
-      //     .orElseThrow(() -> new RuntimeException("Failed to find me from the spreadsheet"));
+
       return new FindMeSheetDto(FindMeCrewMember.of(row, member, values));
     } catch (Exception e) {
       log.error("Failed to find data from the spreadsheet", e);
