@@ -160,7 +160,7 @@ export const handleSubmitMissionModal = async ({ ack, body, view, client }) => {
 
       // 성공 메시지 전송
       await client.chat.postMessage({
-        channel: 'C0893D5CG6N',
+        channel: process.env.MISSION_CHANNER_ID,
         text: `🎯 새로운 미션이 등록되었습니다!\n*주제*: ${subject}\n*목표*: ${goal}\n*작성자*: <@${body.user.id}>`,
       });
     } catch (error) {

@@ -109,7 +109,7 @@ export const handleSendResult = async ({ body, ack, client }) => {
 
     // 메시지 전송
     await client.chat.postMessage({
-      channel: 'C0893D5CG6N',
+      channel: process.env.MISSION_CHANNER_ID,
       blocks: messageBlocks,
       text: '미션 최종 배정 결과입니다.', // 알림이 꺼져있는 경우를 위한 폴백 텍스트
     });
@@ -118,7 +118,7 @@ export const handleSendResult = async ({ body, ack, client }) => {
 
     // 에러 메시지 전송
     await client.chat.postMessage({
-      channel: 'C0893D5CG6N',
+      channel: process.env.MISSION_CHANNER_ID,
       text: '❌ 미션 배정 결과 전송 중 오류가 발생했습니다.',
     });
   }
