@@ -138,6 +138,7 @@ public class SheetsService {
     }
   }
 
+  @Async
   public void saveHangoutAttendance(final String activity, final String name, final String attendance) {
     if (GOOGLE_SHEET_ID == null || GOOGLE_SHEET_ID.isBlank()) {
       log.error("GOOGLE_SHEET_ID 값이 null 또는 비어 있습니다.");
