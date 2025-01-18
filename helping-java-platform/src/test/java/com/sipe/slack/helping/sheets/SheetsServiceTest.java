@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 class SheetsServiceTest {
 
 
-  public static final String SPREADSHEET_ID = "1xxCXFMNSWBQaw1OIgnNdIFfWYRRQTQiquj6jlpzjk44";
   private SheetsService sheetService;
 
   @BeforeEach
