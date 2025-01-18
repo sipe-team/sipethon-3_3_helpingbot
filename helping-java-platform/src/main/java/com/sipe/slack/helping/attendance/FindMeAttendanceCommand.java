@@ -35,19 +35,14 @@ public class FindMeAttendanceCommand {
 				// userId
 				String userId = req.getPayload().getUserId();
 
-				// Get user profile info from Slack API
-				UsersProfileGetResponse usersProfileGetResponse = ctx.client().usersProfileGet(r -> r.token(botToken).user(userId));
-				if (!usersProfileGetResponse.isOk()) {
-					log.error("Error fetching user profile: {}", usersProfileGetResponse.getError());
-					return ctx.ack();
+				UsersInfoResponse response = ctx.client().usersInfo(r -> r.user(userId));
+				String realName = response.getUser().getRealName();
+				if (realName.contains("3기")) {
+					realName = realName.substring(3);
 				}
 
-				String displayName = usersProfileGetResponse.getProfile().getDisplayName();
-
-				// displayName Example: 3기_차윤범, "3기_"를 삭제
-				displayName = displayName.substring(3);
 				// Find attendance information
-				FindMeSheetDto findMeSheetDto = sheetsService.findMeSheetAttendance(displayName);
+				FindMeSheetDto findMeSheetDto = sheetsService.findMeSheetAttendance(realName);
 
 				// Open a modal with the attendance information
 				ctx.client().viewsOpen(r -> r
@@ -86,7 +81,7 @@ public class FindMeAttendanceCommand {
 			})
 			.sum();
 
-		blocks.add(section(s -> s.text(markdownText("총 점수: " + totalScore))));
+		blocks.add(section(s -> s.text(markdownText("현재 총 점수: " + totalScore))));
 
 		// Calculate the total score for 지각 and 결석
 		blocks.add(section(s -> s.text(markdownText("출석 횟수: " + findMeSheetDto.crewMember().scores().stream().filter(score -> score.equals("10")).count()))));
