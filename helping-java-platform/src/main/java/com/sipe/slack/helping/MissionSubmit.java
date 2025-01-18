@@ -2,37 +2,34 @@ package com.sipe.slack.helping;
 
 import static com.slack.api.model.block.Blocks.asBlocks;
 import static com.slack.api.model.block.composition.BlockCompositions.*;
-import static com.slack.api.model.block.element.BlockElements.asElements;
-import static com.slack.api.model.block.element.BlockElements.plainTextInput;
-import com.slack.api.model.block.composition.OptionObject;
-
-import com.slack.api.model.block.composition.BlockCompositions;
-import com.slack.api.model.block.element.StaticSelectElement;
-
-import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
-import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
-import com.slack.api.bolt.handler.builtin.BlockActionHandler;
-import com.slack.api.methods.SlackApiException;
-import com.slack.api.methods.response.views.ViewsOpenResponse;
-import com.slack.api.model.view.View;
-import com.slack.api.model.view.ViewState;
-import com.slack.api.model.block.Blocks;
-import com.slack.api.model.block.element.BlockElements;
-import com.slack.api.model.view.ViewSubmit;
-import com.slack.api.model.view.ViewTitle;
-import com.slack.api.model.view.Views;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import static com.slack.api.model.block.element.BlockElements.*;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.stereotype.Component;
+
+import com.slack.api.bolt.handler.builtin.BlockActionHandler;
+import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
+import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
+import com.slack.api.methods.SlackApiException;
+import com.slack.api.methods.response.views.ViewsOpenResponse;
+import com.slack.api.model.block.Blocks;
+import com.slack.api.model.block.element.BlockElements;
+import com.slack.api.model.view.View;
+import com.slack.api.model.view.ViewClose;
+import com.slack.api.model.view.ViewState;
+import com.slack.api.model.view.ViewSubmit;
+import com.slack.api.model.view.ViewTitle;
+import com.slack.api.model.view.Views;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -244,32 +241,46 @@ public class MissionSubmit {
         };
     }
 
-    private View buildSubmitView(String channelId) {
-        return Views.view(view -> view
-                .callbackId(SUBMIT_VIEW)
-                .type("modal")
-                .privateMetadata(channelId)
-                // .title(viewTitle -> viewTitle.type("plain_text").text("제출하기"))
-                // .submit(viewSubmit -> viewSubmit.type("plain_text").text("제출"))
-                // .close(viewClose -> viewClose.type("plain_text").text("취소"))
-                .blocks(asBlocks(
-                        Blocks.input(input -> input
-                                .blockId("title_block_id")
-                                .label(plainText(pt -> pt.text("책 제목")))
-                                .element(plainTextInput(pti -> pti.actionId(TITLE_INPUT).placeholder(plainText(pt -> pt.text("책 제목을 입력해주세요.")))))
-                        ),
-                        Blocks.input(input -> input
-                                .blockId("sentence_block_id")
-                                .label(plainText(pt -> pt.text("오늘의 문장")))
-                                .element(plainTextInput(pti -> pti.actionId(SENTENCE_INPUT).multiline(true).placeholder(plainText(pt -> pt.text("기억에 남는 문장을 입력해주세요.")))))
-                        ),
-                        Blocks.input(input -> input
-                                .blockId("comment_block_id")
-                                .label(plainText(pt -> pt.text("생각 남기기")))
-                                .optional(true)
-                                .element(plainTextInput(pti -> pti.actionId(COMMENT_INPUT).multiline(true).placeholder(plainText(pt -> pt.text("생각을 자유롭게 남겨주세요.")))))
-                        )
-                ))
-        );
-    }
+	private View buildSubmitView(String channelId) {
+		return Views.view(view -> view
+			.callbackId(SUBMIT_VIEW)
+			.type("modal")
+			.privateMetadata(channelId)
+			.title(ViewTitle.builder()
+				.type("plain_text")
+				.text("제목")
+				.emoji(true)
+				.build())
+			.submit(ViewSubmit.builder()
+				.type("plain_text")
+				.text("제출")
+				.emoji(true)
+				.build()
+			)
+			.close(ViewClose.builder()
+				.type("plain_text")
+				.text("취소")
+				.emoji(true)
+				.build()
+			)
+			.blocks(asBlocks(
+				Blocks.input(input -> input
+					.blockId("title_block_id")
+					.label(plainText(pt -> pt.text("책 제목")))
+					.element(plainTextInput(pti -> pti.actionId(TITLE_INPUT).placeholder(plainText(pt -> pt.text("책 제목을 입력해주세요.")))))
+				),
+				Blocks.input(input -> input
+					.blockId("sentence_block_id")
+					.label(plainText(pt -> pt.text("오늘의 문장")))
+					.element(plainTextInput(pti -> pti.actionId(SENTENCE_INPUT).multiline(true).placeholder(plainText(pt -> pt.text("기억에 남는 문장을 입력해주세요.")))))
+				),
+				Blocks.input(input -> input
+					.blockId("comment_block_id")
+					.label(plainText(pt -> pt.text("생각 남기기")))
+					.optional(true)
+					.element(plainTextInput(pti -> pti.actionId(COMMENT_INPUT).multiline(true).placeholder(plainText(pt -> pt.text("생각을 자유롭게 남겨주세요.")))))
+				)
+			))
+		);
+	}
 }

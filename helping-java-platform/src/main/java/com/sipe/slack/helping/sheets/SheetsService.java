@@ -9,6 +9,7 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.sipe.slack.helping.attendance.FindMeSheetDto;
 import com.sipe.slack.helping.sheets.dto.Attendance;
 import com.sipe.slack.helping.sheets.dto.CrewMember;
 import java.io.IOException;
@@ -31,12 +32,14 @@ public class SheetsService {
   public static final int START_CREW_MEMBER_ROW = 2;
   public static final char START_WEEK_COLUMN = 'D';
 
+  private final String GOOGLE_SHEET_ID = System.getenv("GOOGLE_SHEET_ID");
+
   private Sheets sheets;
 
-  public void attendance(List<String> members, int week, String spreadsheetId) {
+  public void attendance(List<String> members, int week) {
     try {
       Sheets sheets = getSheets();
-      Map<String, Integer> allCrewMember = findAllCrewMember(sheets, spreadsheetId);
+      Map<String, Integer> allCrewMember = findAllCrewMember(sheets, GOOGLE_SHEET_ID);
       for (String member : members) {
         Integer row = allCrewMember.get(member);
         if (row == null) {
@@ -44,7 +47,7 @@ public class SheetsService {
           continue;
         }
         String range = getWeekColumn(week) + row;
-        writeToSheet(sheets, range, Attendance.ATTENDANCE.getScore(), spreadsheetId);
+        writeToSheet(sheets, range, Attendance.ATTENDANCE.getScore(), GOOGLE_SHEET_ID);
       }
     } catch (Exception e) {
       log.error("Failed to write data to the spreadsheet", e);
@@ -101,5 +104,31 @@ public class SheetsService {
           .build();
     }
     return sheets;
+  }
+
+  public FindMeSheetDto findMeSheetAttendance(String member) {
+    log.info("Find me from the spreadsheet: {}", member);
+    try {
+      Sheets sheets = getSheets();
+      Map<String, Integer> allCrewMember = findAllCrewMember(sheets, GOOGLE_SHEET_ID);
+      Integer row = allCrewMember.get(member);
+      if (row == null) {
+        log.warn("없는 사람! " + member);
+        return null;
+      }
+      ValueRange response = sheets.spreadsheets().values()
+          .get(GOOGLE_SHEET_ID, "D" + row + ":ZZ" + row)
+          .execute();
+      // find CrewMember by member
+      List<CrewMember> crewMembers = getCrewMembers(response);
+      CrewMember me = crewMembers.stream()
+          .filter(crewMember -> crewMember.name().equals(member))
+          .findFirst()
+          .orElseThrow(() -> new RuntimeException("Failed to find me from the spreadsheet"));
+      return new FindMeSheetDto(me);
+    } catch (Exception e) {
+      log.error("Failed to find data from the spreadsheet", e);
+      throw new RuntimeException("Failed to find data from the spreadsheet: " + e.getMessage(), e);
+    }
   }
 }
