@@ -25,12 +25,11 @@ public class SlackBoltServerConfig {
 	@EventListener(ContextStartedEvent.class)
 	public SocketModeApp startSocketModeApp() throws Exception {
 		log.info("Start socket mode slack bolt app server.");
+
 		String botToken = System.getenv("SLACK_BOT_TOKEN");
 		String appToken = System.getenv("SLACK_APP_TOKEN");
 		String signingSecret = System.getenv("SLACK_SIGNING_SECRET");
-		// log.info("Bot Token: {}", botToken);
-		// log.info("App Token: {}", appToken);
-		// log.info("Signing Secret: {}", signingSecret);
+
 		App app = new App(AppConfig.builder()
 			.singleTeamBotToken(botToken)
 			.signingSecret(signingSecret)
@@ -42,7 +41,8 @@ public class SlackBoltServerConfig {
 		app.command("/관리자", missionSubmit.handleAdminCommand());
 		app.blockAction("fetch_all_submissions", missionSubmit.handleFetchAllSubmissions());
 		app.command("/출석", missionSubmit.testHandler());
-
+		app.command("/뒷풀이", missionSubmit.HangoutHandler());
+		app.viewSubmission("hangout_view", missionSubmit.handleHangoutSubmission());
 		SocketModeApp socketModeApp = new SocketModeApp(appToken, SocketModeClient.Backend.JavaWebSocket, app);
 		socketModeApp.startAsync();
 		return socketModeApp;
