@@ -32,7 +32,7 @@ public class SheetsService {
   private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
   public static final int START_CREW_MEMBER_ROW = 2;
   public static final char START_WEEK_COLUMN = 'D';
-  private static final String HANGOUT_SHEET_NAME = "Hangout";
+  private static final String HANGOUT_SHEET_NAME = "뒷풀이";
 
   private final String GOOGLE_SHEET_ID = System.getenv("GOOGLE_SHEET_ID");
 
