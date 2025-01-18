@@ -10,10 +10,7 @@ export class GoogleSheet {
       key: process.env.GOOGLE_PRIVATE_KEY,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
-    this.doc = new GoogleSpreadsheet(
-      process.env.GOOGLE_SHEET_ID,
-      serviceAccountAuth
-    );
+    this.doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, serviceAccountAuth);
 
     await this.doc.loadInfo();
   }
@@ -26,5 +23,13 @@ export class GoogleSheet {
       console.error(err);
     }
   }
-  async readMission(sheetIndex) {}
+  async readMission() {
+    try {
+      const sheet = this.doc.sheetsByIndex[1]; // 미션 목록 시트
+      const rows = await sheet.getRows({ offset: 1 });
+      return rows.map(({ _rawData }) => _rawData);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }
