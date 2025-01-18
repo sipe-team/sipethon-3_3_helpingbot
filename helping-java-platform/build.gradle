@@ -53,6 +53,10 @@ dependencies {
     // org.java-websocket:Java-WebSocket
     implementation 'org.java-websocket:Java-WebSocket:1.6.0'
     implementation("org.glassfish.tyrus.bundles:tyrus-standalone-client:${glassfishVersion}")
+
+    // 구글
+    implementation 'com.google.apis:google-api-services-sheets:v4-rev516-1.23.0'
+    implementation 'com.google.auth:google-auth-library-oauth2-http:0.20.0'
 }
 
 tasks.named('test') {
