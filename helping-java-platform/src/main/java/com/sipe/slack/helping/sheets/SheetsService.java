@@ -125,7 +125,7 @@ public class SheetsService {
         return null;
       }
       ValueRange response = sheets.spreadsheets().values()
-          .get(GOOGLE_SHEET_ID, "D" + row + ":NN" + row)
+          .get(GOOGLE_SHEET_ID, "D" + row + ":ZZ" + row)
           .execute();
 
       List<String> values = response.getValues().getFirst().stream()
