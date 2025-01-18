@@ -13,16 +13,21 @@ import static com.slack.api.model.view.Views.viewTitle;
 import com.slack.api.bolt.handler.builtin.SlashCommandHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.bolt.response.Response;
+import com.slack.api.methods.response.users.UsersInfoResponse;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.model.view.View;
-import com.slack.api.model.view.ViewState.Value;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AttendanceHandler {
+
+  private final SheetsService sheetsService;
 
   public SlashCommandHandler attendance() {
     return (req, ctx) -> {
@@ -98,7 +103,19 @@ public class AttendanceHandler {
             .get(memberBlockId)
             .get(memberActionId)
             .getSelectedUsers();
-        log.info("Selected Users: {}", selectedUserIds);
+
+        List<String> userNames = new ArrayList<>();
+        for (String selectedUserId : selectedUserIds) {
+          UsersInfoResponse response = ctx.client().usersInfo(r -> r.user(selectedUserId));
+          String realName = response.getUser().getRealName();
+          if(realName.contains("3기")){
+            userNames.add(realName.substring(3));
+          }
+          else{
+            userNames.add(realName);
+          }
+        }
+        log.info("Selected Users: {}", userNames);
 
         // View Submission Payload에서 입력값 추출
         String weekBlockId = "week-block";
@@ -108,24 +125,17 @@ public class AttendanceHandler {
             .get(weekBlockId)
             .get(weekActionId)
             .getValue();
-
         log.info("Input Week: {}", weekInput);
 
-        // 추가 로직 (데이터 저장, 처리 등)
-        // 예: DB 저장, 메시지 전송 등
-        // processAttendance(selectedUserIds);
+        sheetsService.attendance(userNames, Integer.valueOf(weekInput));
 
+        log.info("Update Success");
         // 사용자에게 성공 메시지 반환
-        return ctx.ack(r -> r.responseAction("clear"));
+        return ctx.ack(); // 기본 응답으로 처리
       } catch (Exception e) {
         log.error("Failed to handle view submission", e);
         return Response.builder().statusCode(500).body("Internal Server Error").build();
       }
     };
-  }
-
-  private void processAttendance(List<String> userIds) {
-    // 유저 데이터를 처리하는 로직 (예: DB 저장)
-    log.info("Processing attendance for users: {}", userIds);
   }
 }
