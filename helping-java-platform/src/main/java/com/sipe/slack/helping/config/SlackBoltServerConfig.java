@@ -46,7 +46,6 @@ public class SlackBoltServerConfig {
 		app.command("/제출내역", missionSubmit.handleSubmissionHistoryCommand());
 		app.command("/관리자", missionSubmit.handleAdminCommand());
 		app.blockAction("fetch_all_submissions", missionSubmit.handleFetchAllSubmissions());
-		app.command("/출석", missionSubmit.testHandler());
 
 		// 본인 출석여부 확인 커맨드
 		app.command("/출석여부", findAttendanceCommand.findMeAttendanceCommand(botToken));
