@@ -168,13 +168,16 @@ public class SheetsService {
       }
 
       // "Hangout" 시트의 위치 설정
-      String range = String.format("%s!C%d:E%d", HANGOUT_SHEET_NAME, row, row);
+      String range = String.format("%s!C%d:D%d", HANGOUT_SHEET_NAME, row, row);
 
       // 기록할 데이터 준비
-      List<List<Object>> values = List.of(List.of(activity, name, attendance));
+      List<List<Object>> values = List.of(List.of(activity, attendance));
 
       ValueRange body = new ValueRange().setValues(values);
-      UpdateValuesResponse result = sheets.spreadsheets().values().update(GOOGLE_SHEET_ID, range, body).setValueInputOption("USER_ENTERED").execute();
+      UpdateValuesResponse result = sheets.spreadsheets().values()
+              .update(GOOGLE_SHEET_ID, range, body)
+              .setValueInputOption("USER_ENTERED")
+              .execute();
 
       log.info("뒷풀이 참석 정보가 기록되었습니다. Updated rows: {}", result.getUpdatedRows());
     } catch (Exception e) {
