@@ -1,15 +1,13 @@
 import fs from 'fs';
 
-export const handleMissionList = async ({ command, ack, client }) => {
-  await ack();
-
+export const handleMissionList = async ({ body, client }) => {
   try {
     const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
     const lines = fileContent.split('\n').filter((line) => line.trim());
     const records = lines.slice(1);
 
     await client.views.open({
-      trigger_id: command.trigger_id,
+      trigger_id: body.trigger_id,
       view: {
         type: 'modal',
         title: {
@@ -59,15 +57,14 @@ export const handleMissionList = async ({ command, ack, client }) => {
 };
 
 export const handleViewMissionDetail = async ({ body, ack, client }) => {
-  await ack();
-
   try {
     const fileContent = fs.readFileSync('data/missions.csv', 'utf-8');
     const lines = fileContent.split('\n').filter((line) => line.trim());
     const records = lines.slice(1);
 
     const missionIndex = parseInt(body.actions[0].value.split('_')[1]);
-    const [date, name, subject, goal] = records[missionIndex].split(',');
+    const [_, teamName, subject, goal, rule, plan] =
+      records[missionIndex].split(',');
 
     // 상세 정보를 모달로 표시
     await client.views.push({
@@ -80,6 +77,13 @@ export const handleViewMissionDetail = async ({ body, ack, client }) => {
           emoji: true,
         },
         blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `*팀이름*\n${teamName ?? ''}`,
+            },
+          },
           {
             type: 'section',
             text: {
@@ -98,14 +102,14 @@ export const handleViewMissionDetail = async ({ body, ack, client }) => {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `*작성자*\n${name}`,
+              text: `*규칙*\n${rule ?? ''}`,
             },
           },
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `*등록일*\n${new Date(date).toLocaleDateString('ko-KR')}`,
+              text: `*계획*\n${plan}`,
             },
           },
         ],

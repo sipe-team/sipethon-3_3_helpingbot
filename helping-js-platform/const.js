@@ -2,6 +2,8 @@ export const MISSION_APPLY_MODAL = 'mission_apply_submission';
 export const MISSION_SUBMIT_MODAL = 'modal_submission';
 
 export const MISSION_SUBMIT_ACTION = 'mission_submit_action';
+export const MISSION_APPLY_ACTION = 'mission_apply_action';
+export const MISSION_LIST_ACTION = 'mission_list_action';
 
 export const requiredColumns = [
   '날짜',

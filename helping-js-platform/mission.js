@@ -1,4 +1,4 @@
-import { MISSION_SUBMIT_ACTION } from './const.js';
+import { MISSION_LIST_ACTION, MISSION_SUBMIT_ACTION } from './const.js';
 
 export const handleMission = async ({ command, ack, client }) => {
   await ack();
@@ -25,7 +25,6 @@ export const handleMission = async ({ command, ack, client }) => {
                 emoji: true,
               },
               action_id: MISSION_SUBMIT_ACTION,
-              style: 'primary',
             },
             {
               type: 'button',
@@ -34,7 +33,7 @@ export const handleMission = async ({ command, ack, client }) => {
                 text: '미션 목록보기',
                 emoji: true,
               },
-              action_id: 'mission_list',
+              action_id: MISSION_LIST_ACTION,
             },
             {
               type: 'button',

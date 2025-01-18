@@ -1,8 +1,6 @@
 import pkg from '@slack/bolt';
 const { App } = pkg;
 
-import fs from 'fs';
-
 import dotenv from 'dotenv';
 
 import {
@@ -17,6 +15,7 @@ import {
   MISSION_SUBMIT_MODAL,
   MISSION_APPLY_MODAL,
   MISSION_SUBMIT_ACTION,
+  MISSION_LIST_ACTION,
 } from './const.js';
 
 import { handleMissionList, handleViewMissionDetail } from './mission-list.js';
@@ -40,11 +39,11 @@ app.command('/미션', handleMission);
 app.action(MISSION_SUBMIT_ACTION, handleSubmitMission);
 app.view(MISSION_SUBMIT_MODAL, handleSubmitMissionModal);
 
+app.action(MISSION_LIST_ACTION, handleMissionList);
+app.action(/view_mission_\d+/, handleViewMissionDetail);
+
 app.command('/미션신청', handleApplyMission);
 app.view(MISSION_APPLY_MODAL, handleApplyMissionModal);
-
-app.command('/미션목록', handleMissionList);
-app.action(/view_mission_\d+/, handleViewMissionDetail);
 
 app.command('/미션선발', missionFinalApi.handleMissionFinalSelect);
 app.action('export_csv', missionFinalApi.handleExportCSV);
