@@ -18,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -49,22 +51,31 @@ public class HangOut {
     }
 
     private View buildHangoutView() {
+
+        String todayActivity = getTodayActivityMessage(); // 오늘 활동 메시지 가져오기
         return Views.view(view -> view
                 .callbackId("hangout_view")
                 .type("modal")
                 .title(ViewTitle.builder().text("뒷풀이 참석 확인").type("plain_text").build()) // 제목
                 .submit(ViewSubmit.builder().text("완료").type("plain_text").build())      // 완료 버튼
                 .blocks(asBlocks(
+                        // 회차 입력 필드
+                        Blocks.section(selection -> selection
+                                .blockId("hangout_activity_block")
+                                .text(BlockCompositions.plainText("오늘의 활동: " + todayActivity))
+                        ),
+                        // 이름 입력 필드
                         Blocks.input(input -> input
-                                .blockId("hangout_name_block") // 이름 입력 필드
+                                .blockId("hangout_name_block")
                                 .label(BlockCompositions.plainText("이름"))
                                 .element(plainTextInput(pti -> pti
                                         .actionId("hangout_name_input")
                                         .placeholder(BlockCompositions.plainText("이름을 입력해주세요."))
                                 ))
                         ),
+                        // 참석 여부 필드
                         Blocks.input(input -> input
-                                .blockId("hangout_attendance_block") // 참석 여부 필드
+                                .blockId("hangout_attendance_block")
                                 .label(BlockCompositions.plainText("뒷풀이 참석 여부"))
                                 .element(StaticSelectElement.builder()
                                         .actionId("hangout_attendance_input")
@@ -94,14 +105,25 @@ public class HangOut {
 
             // 데이터 처리
             try {
+
+                // 오늘의 활동 메시지 가져오기
+                String todayActivity = getTodayActivityMessage();
+
+                // 이름 가져오기
                 String name = req.getPayload().getView().getState().getValues()
                         .get("hangout_name_block").get("hangout_name_input").getValue();
+
+                // 참석 여부 가져오기
                 String attendance = req.getPayload().getView().getState().getValues()
                         .get("hangout_attendance_block").get("hangout_attendance_input").getSelectedOption().getValue();
 
-                String responseMessage = String.format("*뒷풀이 참석 정보*\n- 이름: %s\n- 참석 여부: %s",
-                        name, attendance.equals("yes") ? "참석" : "불참");
+                // 메시지 구성
+                String responseMessage = String.format(
+                        "*뒷풀이 참석 정보*\n- 활동: %s\n- 이름: %s\n- 참석 여부: %s",
+                        todayActivity, name, attendance.equals("yes") ? "참석" : "불참"
+                );
 
+                // 결과를 사용자 DM으로 전송
                 ctx.client().chatPostMessage(r -> r
                         .channel(req.getPayload().getUser().getId())
                         .text(responseMessage)
@@ -112,5 +134,28 @@ public class HangOut {
 
             return ctx.ack();
         };
+    }
+
+    private static final Map<LocalDate, String> WEEKLY_ACTIVITIES = Map.of(
+            LocalDate.of(2024, 10, 12), "OT",
+            LocalDate.of(2024, 10, 26), "MT",
+            LocalDate.of(2024, 11, 9), "사이프챗",
+            LocalDate.of(2024, 11, 23), "사이데이션",
+            LocalDate.of(2024, 12, 7), "1차 미션 발표",
+            LocalDate.of(2024, 12, 21), "사담콘",
+            LocalDate.of(2025, 1, 4), "내친소",
+            LocalDate.of(2025, 1, 18), "사이프톤",
+            LocalDate.of(2025, 2, 1), "2차 미션 발표"
+    );
+
+    private String getTodayActivityMessage() {
+        LocalDate today = LocalDate.now(); // 오늘 날짜 가져오기
+        String activity = WEEKLY_ACTIVITIES.getOrDefault(today, "활동 없음");
+
+        if ("활동 없음".equals(activity)) {
+            return "오늘은 정규 활동이 없습니다.";
+        } else {
+            return String.format("%s 날 (%s)입니다.", activity, today);
+        }
     }
 }
