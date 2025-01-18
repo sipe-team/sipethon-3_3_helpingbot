@@ -39,6 +39,7 @@ dependencies {
     // reference url: https://tools.slack.dev/java-slack-sdk/guides/getting-started-with-bolt/
     implementation("com.slack.api:bolt:${slackVersion}")
     implementation("com.slack.api:slack-api-model:${slackVersion}")
+    implementation("com.slack.api:slack-app-backend:${slackVersion}")
 //    implementation("com.slack.api:bolt-servlet:${slackVersion}")
 //    implementation("com.slack.api:bolt-jetty:${slackVersion}")
 //    implementation("org.slf4j:slf4j-simple:1.7.36")
