@@ -3,9 +3,8 @@ import { GoogleSheet } from './googlesheet.js';
 
 export const handleMissionList = async ({ body, client }) => {
   try {
-    const googleSheet = new GoogleSheet();
-    await googleSheet.init();
-    const records = await googleSheet.readMission();
+    const googlesheet = GoogleSheet.getInstance();
+    const records = await googlesheet.readMission();
 
     await client.views.open({
       trigger_id: body.trigger_id,
@@ -56,9 +55,8 @@ export const handleMissionList = async ({ body, client }) => {
 
 export const handleViewMissionDetail = async ({ body, ack, client }) => {
   try {
-    const googleSheet = new GoogleSheet();
-    await googleSheet.init();
-    const records = await googleSheet.readMission();
+    const googlesheet = GoogleSheet.getInstance();
+    const records = await googlesheet.readMission();
 
     const missionIndex = parseInt(body.actions[0].value.split('_')[1]);
     const [_, teamName, subject, goal, rule, plan] = records[missionIndex];

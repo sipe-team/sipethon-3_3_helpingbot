@@ -136,7 +136,7 @@ export const handleSubmitMissionModal = async ({ ack, body, view, client }) => {
   await ack();
 
   try {
-    const sanitizeText = (text) => {
+    const sanitizeText = text => {
       if (!text) return '';
       return text.replace(/\n\s*\n/g, '\n').trim();
     };
@@ -147,19 +147,16 @@ export const handleSubmitMissionModal = async ({ ack, body, view, client }) => {
     const rule = view.state.values[RULE_INPUT][RULE_INPUT].value;
     const plan = view.state.values[PLAN_INPUT][PLAN_INPUT].value;
 
-    const googleSheet = new GoogleSheet();
-    await googleSheet.init();
+    const googlesheet = GoogleSheet.getInstance();
 
     try {
-      const newRow = `${new Date().toISOString()},${sanitizeText(
-        teamName
-      )},${sanitizeText(subject)},${sanitizeText(goal)},${sanitizeText(
-        rule
-      )},${sanitizeText(plan)},,,,\n`;
+      const newRow = `${new Date().toISOString()},${sanitizeText(teamName)},${sanitizeText(
+        subject,
+      )},${sanitizeText(goal)},${sanitizeText(rule)},${sanitizeText(plan)},,,,\n`;
 
       const newData = newRow.split(',');
 
-      await googleSheet.writeMission(newData);
+      await googlesheet.writeMission(newData);
 
       // 성공 메시지 전송
       await client.chat.postMessage({

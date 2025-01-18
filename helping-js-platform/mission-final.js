@@ -47,8 +47,7 @@ export const handleSendResult = async ({ body, ack, client }) => {
   if (ack) await ack();
 
   try {
-    const googlesheet = new GoogleSheet();
-    await googlesheet.init();
+    const googlesheet = GoogleSheet.getInstance();
     const records = await googlesheet.readMission();
 
     // 메시지 블록 생성
@@ -67,9 +66,8 @@ export const handleSendResult = async ({ body, ack, client }) => {
     ];
 
     // 각 미션 데이터를 섹션 블록으로 변환
-    records.forEach((row) => {
-      const [_, teamName, subject, goal, rule, plan, __, ___, ____, final] =
-        row;
+    records.forEach(row => {
+      const [_, teamName, subject, goal, rule, plan, __, ___, ____, final] = row;
 
       // 빈 데이터는 건너뛰기
       if (!teamName && !subject && !final) return;
@@ -94,7 +92,7 @@ export const handleSendResult = async ({ body, ack, client }) => {
         },
         {
           type: 'divider',
-        }
+        },
       );
     });
 

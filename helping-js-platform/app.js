@@ -3,14 +3,8 @@ const { App } = pkg;
 
 import dotenv from 'dotenv';
 
-import {
-  handleSubmitMission,
-  handleSubmitMissionModal,
-} from './mission-submit.js';
-import {
-  handleApplyMission,
-  handleApplyMissionModal,
-} from './mission-apply.js';
+import { handleSubmitMission, handleSubmitMissionModal } from './mission-submit.js';
+import { handleApplyMission, handleApplyMissionModal } from './mission-apply.js';
 import {
   MISSION_SUBMIT_MODAL,
   MISSION_APPLY_MODAL,
@@ -56,7 +50,4 @@ app.action('send_result', missionFinalApi.handleSendResult);
   app.logger.info('⚡️ Bolt app is running!');
 })();
 
-const googleSheet = new GoogleSheet();
-await googleSheet.init();
-await googleSheet.readMission();
-// await googleSheet.addMemberToMission(1, 'baebae', 1);
+GoogleSheet.getInstance();

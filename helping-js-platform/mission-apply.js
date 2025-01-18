@@ -9,8 +9,7 @@ export const handleApplyMission = async ({ body, client }) => {
     // const lines = fileContent.split('\n').filter((line) => line.trim());
     // const records = lines.slice(1);
 
-    const googlesheet = new GoogleSheet();
-    await googlesheet.init();
+    const googlesheet = GoogleSheet.getInstance();
     const records = await googlesheet.readMission();
 
     // 미션 옵션 만들기
@@ -98,8 +97,7 @@ export const handleApplyMissionModal = async ({ ack, body, view, client }) => {
 
     console.log('selections:', JSON.stringify(selections, null, 3));
 
-    const googlesheet = new GoogleSheet();
-    await googlesheet.init();
+    const googlesheet = GoogleSheet.getInstance();
     const records = await googlesheet.readMission();
 
     {
@@ -116,7 +114,7 @@ export const handleApplyMissionModal = async ({ ack, body, view, client }) => {
           fieldName: 'number3',
           rank: 3,
         },
-      ].map(async (item) => {
+      ].map(async item => {
         // 1순위
         // id, member, rank
         const first = selections[item.fieldName];
