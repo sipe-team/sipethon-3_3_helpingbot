@@ -12,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "@slack/bolt": "^4.2.0",
+    "google-auth-library": "^9.15.0",
+    "google-spreadsheet": "^4.1.4",
     "node-fetch": "^3.3.2"
   }
 }

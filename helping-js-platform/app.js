@@ -5,19 +5,15 @@ import fs from 'fs';
 
 import dotenv from 'dotenv';
 
-import {
-  handleSubmitMission,
-  handleSubmitMissionModal,
-} from './mission-submit.js';
-import {
-  handleApplyMission,
-  handleApplyMissionModal,
-} from './mission-apply.js';
+import { handleSubmitMission, handleSubmitMissionModal } from './mission-submit.js';
+import { handleApplyMission, handleApplyMissionModal } from './mission-apply.js';
 import { MISSION_SUBMIT_MODAL, MISSION_APPLY_MODAL } from './const.js';
 
 import { handleMissionList, handleViewMissionDetail } from './mission-list.js';
 
 import * as missionFinalApi from './mission-final.js';
+
+import { GoogleSheet } from './googlesheet.js';
 
 dotenv.config();
 
@@ -55,3 +51,7 @@ app.view('import_csv_modal', missionFinalApi.handleImportCSVModal);
 
   app.logger.info('⚡️ Bolt app is running!');
 })();
+
+const googleSheet = new GoogleSheet();
+await googleSheet.init();
+await googleSheet.writeMission(['John Doe', 30, 'New York']);
