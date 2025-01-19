@@ -27,11 +27,11 @@
     <th align="center">차윤범</th>
     <tr>
         <td align="center">
-            <a href="https://github.com/hoa0217"><img src="https://github.com/hoa0217.png" width="250"/></a>
-        </td>
-        <td align="center">
             <a href="https://github.com/devfancy"><img src="https://github.com/devfancy.png" width="250"/></a>
         </td>
+        <td align="center">
+            <a href="https://github.com/hoa0217"><img src="https://github.com/hoa0217.png" width="250"/></a>
+        </td>        
         <td align="center">
             <a href="https://github.com/heeji289"><img src="https://github.com/heeji289.png" width="250"/></a>
         </td>
