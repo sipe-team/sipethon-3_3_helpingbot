@@ -64,7 +64,7 @@
 ```
 /미션
 ```
-![미션](https://github.com/user-attachments/assets/5800a2d8-4419-4cc0-984c-04d0a1597b27)
+<video src="https://github.com/user-attachments/assets/49655e40-41f3-4f25-b42b-e2cb2c6af3f2"></video>
 
 <br>
 
@@ -73,7 +73,7 @@
 ```
 /미션관리
 ```
-![미션 관리](https://github.com/user-attachments/assets/d8cdebda-d9b0-489d-a378-1edb42e8960e)
+<video src="https://github.com/user-attachments/assets/8965be1b-7b22-4896-bb56-3eec2db98d38">/video>
 
 <br>
 
@@ -87,7 +87,7 @@
 /출석여부
 ```
 
-![출석](https://github.com/user-attachments/assets/45c26a86-4d4c-4f89-a40f-b77b1f20498e)
+<video src="https://github.com/user-attachments/assets/a898a946-681b-4c55-9bda-9797307d81b5"></video>
 
 <br>
 
@@ -96,6 +96,6 @@
 ```
 /뒷풀이
 ```
-![뒷풀이](https://github.com/user-attachments/assets/5de6bd62-9dd2-4826-afdf-6246e36a9aeb)
+<video src="https://github.com/user-attachments/assets/2276ed27-3581-4f58-bdd8-51c0da55d1a6"></video>
 
 <br>
